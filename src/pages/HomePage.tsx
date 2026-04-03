@@ -96,23 +96,23 @@ export function HomePage() {
                   <div className="flex-1 space-y-6">
                     <div className="flex items-center gap-2 text-accent font-bold uppercase tracking-[0.2em] text-xs">
                       <Sparkles className="h-4 w-4 animate-pulse" />
-                      Prime Recommendation: {topSpot.name}
+                      Prime Recommendation: {topSpot?.name}
                     </div>
                     <h2 className="text-3xl md:text-5xl font-display font-bold leading-tight">
-                      "{topSpot.aiInsight?.summary || 'Analyzing current session windows...'}"
+                      "{topSpot?.aiInsight?.summary || 'Analyzing current session windows...'}"
                     </h2>
                     <div className="flex flex-wrap items-center gap-4 text-muted-foreground pt-4">
                       <div className="px-4 py-1.5 rounded-full bg-accent/20 text-accent text-xs font-bold border border-accent/20 uppercase">
-                        {topSpot.aiInsight?.idealSport || 'Wingfoil'}
+                        {topSpot?.aiInsight?.idealSport || 'Wingfoil'}
                       </div>
                       <div className="px-4 py-1.5 rounded-full bg-secondary text-foreground text-xs font-bold border border-border uppercase">
-                        Window: {topSpot.aiInsight?.timeframe || '14:00 - 18:00'}
+                        Window: {topSpot?.aiInsight?.timeframe || '14:00 - 18:00'}
                       </div>
                     </div>
                   </div>
                   <div className="shrink-0">
                     <Button size="lg" className="rounded-full px-8 py-6 h-auto text-lg font-bold bg-accent hover:bg-accent/90 shadow-xl shadow-accent/20 transition-transform hover:scale-105" asChild>
-                      <Link to={`/spot/${topSpot.id}`}>
+                      <Link to={`/spot/${topSpot?.id}`}>
                         Deep Dive <ArrowRight className="ml-2 h-5 w-5" />
                       </Link>
                     </Button>
