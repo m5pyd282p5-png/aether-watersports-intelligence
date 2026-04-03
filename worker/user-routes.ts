@@ -12,11 +12,11 @@ export function userRoutes(app: Hono<{ Bindings: Env }>) {
       const cursor = c.req.query('cursor');
       const limitParam = c.req.query('limit');
       const limit = limitParam ? Math.max(1, Math.min(100, (Number(limitParam) | 0))) : 100;
-      // Seeding validation & top-up
+      // Seeding validation & top-up - use individual existence checks
       const listResult = await SpotEntity.list(c.env, null, 100);
       const existingSpots = listResult.items || [];
-      if (existingSpots.length < MOCK_SPOTS.length) {
-        const existingIdSet = new Set(existingSpots.filter(Boolean).map(s => s.id));
+      const existingIdSet = new Set(existingSpots.filter(Boolean).map(s => s.id));
+      if (existingIdSet.size < MOCK_SPOTS.length) {
         for (const mockSpot of MOCK_SPOTS) {
           if (!existingIdSet.has(mockSpot.id)) {
             await SpotEntity.create(c.env, mockSpot);
@@ -25,8 +25,8 @@ export function userRoutes(app: Hono<{ Bindings: Env }>) {
       }
       let { items, next } = await SpotEntity.list(c.env, cursor ?? null, limit);
       // Defensive filtering for corrupted or empty storage records
-      let validItems = items.filter((spot): spot is any => 
-        !!spot && typeof spot === 'object' && !!spot.id && !!spot.name
+      let validItems = (items || []).filter((spot): spot is any => 
+        !!spot && typeof spot === 'object' && !!spot.id && !!spot.name && !!spot.sportRatings
       );
       if (region && region !== 'All') {
         const targetRegion = region.toLowerCase();
@@ -48,6 +48,7 @@ export function userRoutes(app: Hono<{ Bindings: Env }>) {
     }
     try {
       const data = await spotEntity.getState();
+      if (!data || !data.id) return notFound(c, 'Corrupted spot data');
       return ok(c, data);
     } catch (err) {
       return bad(c, 'Failed to fetch spot intelligence');

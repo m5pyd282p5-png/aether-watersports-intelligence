@@ -22,7 +22,6 @@ export function ExplorePage() {
     queryKey: ['spots'],
     queryFn: () => api<{ items: Spot[] }>('/api/spots'),
   })
-  // Fixed lint issue: spots initialization handled inside or separate from dependency
   const spotsRaw = data?.items;
   const filteredSpots = useMemo(() => {
     const spotsList = spotsRaw ?? [];
@@ -48,7 +47,7 @@ export function ExplorePage() {
   }
   if (error) {
     return (
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 text-center space-y-6 glass-panel rounded-3xl">
+      <div className="py-20 text-center space-y-6 glass-panel rounded-3xl">
         <p className="text-destructive font-medium text-xl">System synchronization failure.</p>
         <Button onClick={() => window.location.reload()} variant="outline">Retry Sync</Button>
       </div>
@@ -185,18 +184,18 @@ export function ExplorePage() {
                           <div className="flex items-center gap-4 text-xs text-muted-foreground">
                             <div className="flex items-center gap-1">
                               <Users className="h-3 w-3 text-accent" />
-                              {spot.crowd} Crowd
+                              {spot.crowd ?? 'Medium'} Crowd
                             </div>
                             <div className="flex items-center gap-1">
                               <Shield className="h-3 w-3 text-primary" />
-                              {spot.facilities.length} Facilities
+                              {(spot.facilities ?? []).length} Facilities
                             </div>
                           </div>
                         </div>
                         <div className="pt-2 flex flex-wrap gap-2">
                           {spot.sportRatings && Object.entries(spot.sportRatings).map(([sport, rating]) => {
                             if (rating > 7) {
-                              const gear = spot.bestGear.find(g => g.sport === sport)?.sizeRange;
+                              const gear = (spot.bestGear ?? []).find(g => g.sport === sport)?.sizeRange;
                               return (
                                 <Tooltip key={sport}>
                                   <TooltipTrigger asChild>

@@ -19,10 +19,10 @@ export function HomePage() {
   const topSpot = spots.length > 0 ? spots[0] : null
   const activeRegions = new Set(spots.map(s => s.region)).size;
   const avgWindSpeed = spots.length > 0
-    ? (spots.reduce((acc, s) => acc + (s.forecast[0]?.windSpeed ?? 0), 0) / spots.length).toFixed(1)
+    ? (spots.reduce((acc, s) => acc + (s.forecast?.[0]?.windSpeed ?? 0), 0) / spots.length).toFixed(1)
     : 0;
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12 relative">
+    <div className="relative">
       <IllustrativeBackground />
       <div className="space-y-16 md:space-y-24">
         {/* Hero Section */}
@@ -89,18 +89,18 @@ export function HomePage() {
                         Intelligence of the Hour: {topSpot.name}
                       </div>
                       <h2 className="text-3xl md:text-4xl font-display font-bold leading-tight group-hover:text-primary transition-colors">
-                        "{topSpot.aiInsight.summary}"
+                        "{topSpot.aiInsight?.summary ?? 'Optimizing session windows...'}"
                       </h2>
                       <div className="flex flex-wrap items-center justify-center md:justify-start gap-4 text-muted-foreground pt-4">
                         <div className="flex items-center gap-2 px-3 py-1 bg-white/5 rounded-full border border-white/5">
                           <Wind className="h-4 w-4 text-primary" />
-                          <span className="font-medium text-xs uppercase tracking-wider">{topSpot.aiInsight.timeframe}</span>
+                          <span className="font-medium text-xs uppercase tracking-wider">{topSpot.aiInsight?.timeframe ?? 'ASAP'}</span>
                         </div>
                         <div className="px-4 py-1.5 rounded-full bg-accent/20 text-accent text-xs font-bold border border-accent/20 uppercase tracking-widest">
-                          {topSpot.aiInsight.idealSport}
+                          {topSpot.aiInsight?.idealSport ?? 'Unknown'}
                         </div>
                         <div className="px-4 py-1.5 rounded-full bg-secondary text-foreground text-xs font-bold border border-border uppercase tracking-widest">
-                          Rec. Gear: {topSpot.bestGear[0]?.sizeRange || "Standard"}
+                          Rec. Gear: {topSpot.bestGear?.[0]?.sizeRange || "Standard"}
                         </div>
                       </div>
                     </div>
@@ -168,16 +168,16 @@ export function HomePage() {
                           <p className="text-sm text-muted-foreground font-medium mb-4">{spot.location}</p>
                           <div className="flex gap-4 mb-4">
                             <div className="flex items-center gap-1 text-[10px] uppercase font-bold text-muted-foreground">
-                              <Shield className="h-3 w-3 text-primary" /> {spot.schoolInfo.length} Schools
+                              <Shield className="h-3 w-3 text-primary" /> {(spot.schoolInfo ?? []).length} Schools
                             </div>
                             <div className="flex items-center gap-1 text-[10px] uppercase font-bold text-muted-foreground">
-                              <Wind className="h-3 w-3 text-accent" /> {spot.bestGear[0]?.sizeRange || "Standard"}
+                              <Wind className="h-3 w-3 text-accent" /> {spot.bestGear?.[0]?.sizeRange || "Standard"}
                             </div>
                           </div>
                         </div>
                         <div className="mt-auto flex gap-2">
-                          <Badge variant="secondary" className="text-[10px] uppercase font-black px-2 py-1 tracking-widest bg-secondary/50">Windsurf {spot.sportRatings.windsurf}</Badge>
-                          <Badge variant="secondary" className="text-[10px] uppercase font-black px-2 py-1 tracking-widest bg-secondary/50">Wing {spot.sportRatings.wing}</Badge>
+                          <Badge variant="secondary" className="text-[10px] uppercase font-black px-2 py-1 tracking-widest bg-secondary/50">Windsurf {spot.sportRatings?.windsurf ?? 0}</Badge>
+                          <Badge variant="secondary" className="text-[10px] uppercase font-black px-2 py-1 tracking-widest bg-secondary/50">Wing {spot.sportRatings?.wing ?? 0}</Badge>
                         </div>
                       </CardContent>
                     </Card>

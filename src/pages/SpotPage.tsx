@@ -34,7 +34,6 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Progress } from '@/components/ui/progress'
 import { Badge } from '@/components/ui/badge'
 import { Skeleton } from '@/components/ui/skeleton'
-import { Separator } from '@/components/ui/separator'
 import { cn } from '@/lib/utils'
 import type { Spot } from '@shared/types'
 export function SpotPage() {
@@ -53,7 +52,7 @@ export function SpotPage() {
   })
   if (isLoading) {
     return (
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12 space-y-8">
+      <div className="space-y-8">
         <Skeleton className="h-10 w-32" />
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           <div className="lg:col-span-2 space-y-6">
@@ -71,7 +70,7 @@ export function SpotPage() {
   }
   if (error || !spot) {
     return (
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 text-center space-y-6">
+      <div className="py-20 text-center space-y-6">
         <h2 className="text-3xl font-display font-bold">Spot Lost at Sea</h2>
         <p className="text-muted-foreground">We couldn't find the intelligence for this location.</p>
         <Button asChild>
@@ -80,8 +79,10 @@ export function SpotPage() {
       </div>
     )
   }
+  const idealSportSlug = spot.aiInsight?.idealSport?.toLowerCase()?.slice(0, 4) ?? "wind";
+  const recommendedGear = spot.bestGear?.find(g => g.sport?.toLowerCase()?.includes(idealSportSlug))?.sizeRange ?? "Standard";
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12 space-y-12">
+    <div className="space-y-12">
       <nav className="flex items-center justify-between">
         <Button variant="ghost" asChild className="-ml-4">
           <Link to="/explore">
@@ -90,7 +91,7 @@ export function SpotPage() {
         </Button>
         <div className="flex gap-2">
            <Badge variant="outline" className="border-accent/40 text-accent bg-accent/5">
-            {spot.difficulty} Level
+            {spot.difficulty ?? 'Unknown'} Level
           </Badge>
           <Badge variant="outline" className="border-primary/40 text-primary bg-primary/5 hidden sm:flex">
             Live Analysis Active
@@ -117,7 +118,6 @@ export function SpotPage() {
               </div>
             </motion.div>
           </header>
-          {/* AI Insight Card */}
           <Card className={cn(
             "glass-panel border-primary/20 transition-all duration-500 shadow-xl",
             isAnalyzing && "animate-pulse opacity-70"
@@ -145,27 +145,24 @@ export function SpotPage() {
             </CardHeader>
             <CardContent className="space-y-6">
               <p className="text-2xl font-medium leading-relaxed italic text-foreground font-display">
-                "{spot.aiInsight.summary}"
+                "{spot.aiInsight?.summary ?? 'No summary available.'}"
               </p>
               <div className="flex flex-wrap gap-4 pt-2">
                 <div className="bg-accent/10 px-4 py-2 rounded-2xl border border-accent/20">
                   <span className="text-xs text-accent uppercase font-bold block mb-1">Prime Window</span>
-                  <span className="text-lg font-bold">{spot.aiInsight.timeframe}</span>
+                  <span className="text-lg font-bold">{spot.aiInsight?.timeframe ?? 'N/A'}</span>
                 </div>
                 <div className="bg-primary/10 px-4 py-2 rounded-2xl border border-primary/20">
                   <span className="text-xs text-primary uppercase font-bold block mb-1">Best Sport</span>
-                  <span className="text-lg font-bold">{spot.aiInsight.idealSport}</span>
+                  <span className="text-lg font-bold">{spot.aiInsight?.idealSport ?? 'N/A'}</span>
                 </div>
                 <div className="bg-secondary/50 px-4 py-2 rounded-2xl border border-border">
                    <span className="text-xs text-muted-foreground uppercase font-bold block mb-1">Recommended Gear</span>
-                   <span className="text-lg font-bold">
-                    {spot.bestGear.find(g => g.sport.toLowerCase().includes(spot.aiInsight.idealSport.toLowerCase().slice(0, 4)))?.sizeRange || "Standard"}
-                   </span>
+                   <span className="text-lg font-bold">{recommendedGear}</span>
                 </div>
               </div>
             </CardContent>
           </Card>
-          {/* Practical Info Grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <Card className="bg-card/50 border-white/5">
               <CardHeader className="pb-2">
@@ -176,15 +173,15 @@ export function SpotPage() {
               <CardContent className="space-y-4">
                 <div className="flex items-center justify-between">
                   <span className="text-sm">Skill Required</span>
-                  <Badge variant="outline" className="border-accent/40">{spot.difficulty}</Badge>
+                  <Badge variant="outline" className="border-accent/40">{spot.difficulty ?? 'N/A'}</Badge>
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="text-sm">Crowd Density</span>
-                  <Badge variant="outline" className="border-primary/40">{spot.crowd}</Badge>
+                  <Badge variant="outline" className="border-primary/40">{spot.crowd ?? 'N/A'}</Badge>
                 </div>
                 <div className="space-y-2 pt-2">
                   <span className="text-sm block font-medium">Launch Area</span>
-                  <p className="text-sm text-muted-foreground leading-relaxed">{spot.launchArea}</p>
+                  <p className="text-sm text-muted-foreground leading-relaxed">{spot.launchArea || 'No information available.'}</p>
                 </div>
               </CardContent>
             </Card>
@@ -196,14 +193,14 @@ export function SpotPage() {
               </CardHeader>
               <CardContent>
                 <div className="flex flex-wrap gap-2">
-                  {spot.facilities.map((f, i) => (
+                  {(spot.facilities ?? []).map((f, i) => (
                     <Badge key={i} variant="secondary" className="bg-secondary/50 px-3 py-1">{f}</Badge>
                   ))}
                 </div>
                 <div className="mt-4 space-y-2">
                   <span className="text-sm block font-medium">Pro Tips</span>
                   <ul className="space-y-1">
-                    {spot.tips.map((tip, i) => (
+                    {(spot.tips ?? []).map((tip, i) => (
                       <li key={i} className="text-sm text-muted-foreground flex items-start gap-2 italic">
                         <span className="text-primary mt-1">•</span> {tip}
                       </li>
@@ -213,7 +210,6 @@ export function SpotPage() {
               </CardContent>
             </Card>
           </div>
-          {/* Location Intelligence (Map) */}
           <Card className="overflow-hidden border-border shadow-lg">
             <CardHeader className="bg-secondary/20">
               <CardTitle className="text-lg flex items-center gap-2">
@@ -232,14 +228,12 @@ export function SpotPage() {
                 className="absolute inset-0 grayscale-[20%]"
                 allowFullScreen
               ></iframe>
-              {/* Fallback Overlay for Demo */}
               <div className="absolute inset-0 bg-black/5 pointer-events-none" />
               <div className="absolute bottom-4 right-4 bg-background/90 backdrop-blur p-2 rounded-lg border shadow-sm text-[10px] uppercase font-bold tracking-widest">
                 Lat: {spot.lat} | Lng: {spot.lng}
               </div>
             </div>
           </Card>
-          {/* 24-Hour Forecast Chart */}
           <Card className="bg-card border-border shadow-lg">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
@@ -250,7 +244,7 @@ export function SpotPage() {
             <CardContent>
               <div className="h-[350px] w-full">
                 <ResponsiveContainer width="100%" height="100%">
-                  <AreaChart data={spot.forecast}>
+                  <AreaChart data={spot.forecast ?? []}>
                     <defs>
                       <linearGradient id="colorWind" x1="0" y1="0" x2="0" y2="1">
                         <stop offset="5%" stopColor="#0ea5e9" stopOpacity={0.3}/>
@@ -285,13 +279,13 @@ export function SpotPage() {
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-8">
-              {Object.entries(spot.sportRatings).map(([sport, rating]) => (
+              {Object.entries(spot.sportRatings ?? {}).map(([sport, rating]) => (
                 <div key={sport} className="space-y-3">
                   <div className="flex justify-between items-center">
                     <span className="capitalize font-semibold text-muted-foreground">{sport}</span>
                     <span className="font-bold text-lg">{rating}/10</span>
                   </div>
-                  <Progress value={rating * 10} className="h-2" />
+                  <Progress value={(rating ?? 0) * 10} className="h-2" />
                 </div>
               ))}
             </CardContent>
@@ -304,7 +298,7 @@ export function SpotPage() {
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              {spot.schoolInfo.length > 0 ? spot.schoolInfo.map((school, i) => (
+              {(spot.schoolInfo ?? []).length > 0 ? (spot.schoolInfo ?? []).map((school, i) => (
                 <div key={i} className="p-4 rounded-xl bg-secondary/30 border border-border group hover:border-primary/40 transition-colors">
                   <div className="flex justify-between items-start mb-2">
                     <h4 className="font-bold text-foreground group-hover:text-primary transition-colors">{school.name}</h4>
@@ -316,9 +310,11 @@ export function SpotPage() {
                         <Phone className="h-3 w-3" /> Call
                       </a>
                     )}
-                    <button className="text-xs text-muted-foreground hover:text-foreground flex items-center gap-1">
-                      <ExternalLink className="h-3 w-3" /> Website
-                    </button>
+                    {school.website && (
+                      <a href={school.website} target="_blank" rel="noopener noreferrer" className="text-xs text-muted-foreground hover:text-foreground flex items-center gap-1">
+                        <ExternalLink className="h-3 w-3" /> Website
+                      </a>
+                    )}
                   </div>
                 </div>
               )) : (
@@ -338,7 +334,7 @@ export function SpotPage() {
                   <Navigation className="h-5 w-5 text-muted-foreground" />
                   <span className="text-sm">Ideal Direction</span>
                 </div>
-                <span className="text-sm font-bold">{spot.bestDirection}</span>
+                <span className="text-sm font-bold">{spot.bestDirection || 'N/A'}</span>
               </div>
               <div className="flex items-center justify-between p-3 rounded-xl bg-accent/5">
                 <div className="flex items-center gap-3">
