@@ -1,6 +1,6 @@
 import React from 'react'
 import { motion } from 'framer-motion'
-import { Sparkles, Wind, ArrowRight, Star, Globe, Zap, Anchor, Shield, RefreshCw } from 'lucide-react'
+import { Sparkles, Wind, ArrowRight, Star, Globe, Zap, Anchor, RefreshCw } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
@@ -10,10 +10,11 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { api } from '@/lib/api-client'
 import { IllustrativeBackground } from '@/components/IllustrativeBackground'
 import { toast } from 'sonner'
+import { cn } from '@/lib/utils'
 import type { Spot } from '@shared/types'
 export function HomePage() {
   const queryClient = useQueryClient();
-  const { data, isLoading, refetch } = useQuery({
+  const { data, isLoading } = useQuery({
     queryKey: ['spots'],
     queryFn: () => api<{ items: Spot[] }>('/api/spots'),
   })
