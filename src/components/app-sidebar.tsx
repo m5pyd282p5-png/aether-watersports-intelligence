@@ -1,5 +1,5 @@
 import React from "react";
-import { Home, Compass, Wind, Anchor, Settings, Waves } from "lucide-react";
+import { Home, Compass, Waves } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import {
   Sidebar,
@@ -17,8 +17,6 @@ export function AppSidebar(): JSX.Element {
   const navItems = [
     { name: "Dashboard", path: "/", icon: Home },
     { name: "Spot Explorer", path: "/explore", icon: Compass },
-    { name: "Live Forecasts", path: "/forecasts", icon: Wind },
-    { name: "My Quiver", path: "/quiver", icon: Anchor },
   ];
   return (
     <Sidebar className="border-r border-white/5">
