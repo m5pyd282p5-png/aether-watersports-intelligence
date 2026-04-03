@@ -1,138 +1,118 @@
-// Home page of the app.
-// Currently a demo placeholder "please wait" screen.
-// Replace this file with your actual app UI. Do not delete it to use some other file as homepage. Simply replace the entire contents of this file.
-
-import { useEffect, useMemo, useState } from 'react'
-import { Sparkles } from 'lucide-react'
-
-import { ThemeToggle } from '@/components/ThemeToggle'
-import { HAS_TEMPLATE_DEMO, TemplateDemo } from '@/components/TemplateDemo'
+import React from 'react'
+import { motion } from 'framer-motion'
+import { Sparkles, Wind, ArrowRight, Star } from 'lucide-react'
 import { Button } from '@/components/ui/button'
-import { Toaster, toast } from '@/components/ui/sonner'
-
-function formatDuration(ms: number): string {
-  const total = Math.max(0, Math.floor(ms / 1000))
-  const m = Math.floor(total / 60)
-  const s = total % 60
-  return `${m}:${s.toString().padStart(2, '0')}`
-}
-
+import { Card, CardContent } from '@/components/ui/card'
+import { Badge } from '@/components/ui/badge'
+import { Link } from 'react-router-dom'
+import { IllustrativeBackground } from '@/components/IllustrativeBackground'
+import { MOCK_SPOTS } from '@shared/mock-data'
 export function HomePage() {
-  const [coins, setCoins] = useState(0)
-  const [isRunning, setIsRunning] = useState(false)
-  const [startedAt, setStartedAt] = useState<number | null>(null)
-  const [elapsedMs, setElapsedMs] = useState(0)
-
-  useEffect(() => {
-    if (!isRunning || startedAt === null) return
-
-    const t = setInterval(() => {
-      setElapsedMs(Date.now() - startedAt)
-    }, 250)
-
-    return () => clearInterval(t)
-  }, [isRunning, startedAt])
-
-  const formatted = useMemo(() => formatDuration(elapsedMs), [elapsedMs])
-
-  const onPleaseWait = () => {
-    setCoins((c) => c + 1)
-
-    if (!isRunning) {
-      // Resume from the current elapsed time
-      setStartedAt(Date.now() - elapsedMs)
-      setIsRunning(true)
-      toast.success('Building your app…', {
-        description: "Hang tight — we're setting everything up.",
-      })
-      return
-    }
-
-    setIsRunning(false)
-    toast.info('Still working…', {
-      description: 'You can come back in a moment.',
-    })
-  }
-
-  const onReset = () => {
-    setCoins(0)
-    setIsRunning(false)
-    setStartedAt(null)
-    setElapsedMs(0)
-    toast('Reset complete')
-  }
-
-  const onAddCoin = () => {
-    setCoins((c) => c + 1)
-    toast('Coin added')
-  }
-
+  const topSpot = MOCK_SPOTS[0]
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-background text-foreground p-4 overflow-hidden relative">
-      <ThemeToggle />
-      <div className="absolute inset-0 bg-gradient-rainbow opacity-10 dark:opacity-20 pointer-events-none" />
-
-      <div className="text-center space-y-8 relative z-10 animate-fade-in w-full">
-        <div className="flex justify-center">
-          <div className="w-16 h-16 rounded-2xl bg-gradient-primary flex items-center justify-center shadow-primary floating">
-            <Sparkles className="w-8 h-8 text-white rotating" />
+    <div className="relative">
+      <IllustrativeBackground />
+      <div className="space-y-12">
+        {/* Hero Section */}
+        <header className="space-y-4 max-w-3xl">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+          >
+            <Badge variant="outline" className="px-4 py-1 border-primary/30 bg-primary/5 text-primary mb-6">
+              AI Decision Engine Active
+            </Badge>
+            <h1 className="text-display text-5xl md:text-7xl font-bold">
+              Navigate the <span className="text-primary italic">Aegean</span> with Intelligence.
+            </h1>
+            <p className="text-xl text-muted-foreground mt-6 leading-relaxed">
+              Real-time spot ratings and AI-driven insights for windsurf, kite, and wingfoil athletes in Greece.
+            </p>
+          </motion.div>
+        </header>
+        {/* AI Insight Card */}
+        <motion.div
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ delay: 0.2 }}
+        >
+          <Card className="glass-panel overflow-hidden border-primary/20">
+            <CardContent className="p-8 md:p-10 flex flex-col md:flex-row gap-8 items-center">
+              <div className="flex-1 space-y-4 text-center md:text-left">
+                <div className="flex items-center justify-center md:justify-start gap-2 text-accent font-semibold uppercase tracking-wider text-sm">
+                  <Sparkles className="h-4 w-4" />
+                  Insight of the Day
+                </div>
+                <h2 className="text-3xl font-display font-bold">
+                  "{topSpot.aiInsight.summary}"
+                </h2>
+                <div className="flex flex-wrap items-center justify-center md:justify-start gap-4 text-muted-foreground pt-2">
+                  <div className="flex items-center gap-2">
+                    <Wind className="h-4 w-4 text-primary" />
+                    <span>{topSpot.aiInsight.timeframe}</span>
+                  </div>
+                  <div className="px-3 py-1 rounded-full bg-accent/10 text-accent text-sm font-medium">
+                    Best for: {topSpot.aiInsight.idealSport}
+                  </div>
+                </div>
+              </div>
+              <div className="shrink-0">
+                <Button size="lg" className="rounded-full px-8 py-6 h-auto text-lg font-semibold bg-accent hover:bg-accent/90" asChild>
+                  <Link to={`/spot/${topSpot.id}`}>
+                    Go Now <ArrowRight className="ml-2 h-5 w-5" />
+                  </Link>
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </motion.div>
+        {/* Top Spots Grid */}
+        <section className="space-y-6">
+          <div className="flex items-center justify-between">
+            <h3 className="text-2xl font-display font-bold">Trending Spots</h3>
+            <Button variant="ghost" asChild>
+              <Link to="/explore">View all <ArrowRight className="ml-2 h-4 w-4" /></Link>
+            </Button>
           </div>
-        </div>
-
-        <div className="space-y-3">
-          <h1 className="text-5xl md:text-7xl font-display font-bold text-balance leading-tight">
-            Creating your <span className="text-gradient">app</span>
-          </h1>
-          <p className="text-lg md:text-xl text-muted-foreground max-w-xl mx-auto text-pretty">
-            Your application would be ready soon.
-          </p>
-        </div>
-
-        {HAS_TEMPLATE_DEMO ? (
-          <div className="max-w-5xl mx-auto text-left">
-            <TemplateDemo />
-          </div>
-        ) : (
-          <>
-            <div className="flex justify-center gap-4">
-              <Button
-                size="lg"
-                onClick={onPleaseWait}
-                className="btn-gradient px-8 py-4 text-lg font-semibold hover:-translate-y-0.5 transition-all duration-200"
-                aria-live="polite"
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {MOCK_SPOTS.map((spot, idx) => (
+              <motion.div
+                key={spot.id}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.1 * idx }}
               >
-                Please Wait
-              </Button>
-            </div>
-
-            <div className="flex items-center justify-center gap-6 text-sm text-muted-foreground">
-              <div>
-                Time elapsed:{' '}
-                <span className="font-medium tabular-nums text-foreground">{formatted}</span>
-              </div>
-              <div>
-                Coins:{' '}
-                <span className="font-medium tabular-nums text-foreground">{coins}</span>
-              </div>
-            </div>
-
-            <div className="flex justify-center gap-2">
-              <Button variant="outline" size="sm" onClick={onReset}>
-                Reset
-              </Button>
-              <Button variant="outline" size="sm" onClick={onAddCoin}>
-                Add Coin
-              </Button>
-            </div>
-          </>
-        )}
+                <Link to={`/spot/${spot.id}`}>
+                  <Card className="group overflow-hidden bg-card hover:border-primary/50 transition-colors">
+                    <div className="aspect-video relative overflow-hidden">
+                      <img
+                        src={spot.image}
+                        alt={spot.name}
+                        className="object-cover w-full h-full group-hover:scale-105 transition-transform duration-500"
+                      />
+                      <div className="absolute top-3 right-3">
+                        <Badge className="bg-black/50 backdrop-blur-md border-white/20 px-2 py-1">
+                          <Star className="h-3 w-3 text-accent fill-accent mr-1" />
+                          {spot.generalRating}
+                        </Badge>
+                      </div>
+                    </div>
+                    <CardContent className="p-5">
+                      <h4 className="text-lg font-bold group-hover:text-primary transition-colors">{spot.name}</h4>
+                      <p className="text-sm text-muted-foreground">{spot.location}</p>
+                      <div className="mt-4 flex gap-2">
+                        <Badge variant="secondary" className="text-[10px] uppercase font-bold">Windsurf {spot.sportRatings.windsurf}/10</Badge>
+                        <Badge variant="secondary" className="text-[10px] uppercase font-bold">Wing {spot.sportRatings.wing}/10</Badge>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </Link>
+              </motion.div>
+            ))}
+          </div>
+        </section>
       </div>
-
-      <footer className="absolute bottom-8 text-center text-muted-foreground/80">
-        <p>Powered by Cloudflare</p>
-      </footer>
-
-      <Toaster richColors closeButton />
     </div>
   )
 }
