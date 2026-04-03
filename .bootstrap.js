@@ -80,7 +80,8 @@ function runSetupCommands() {
     const commands = [
     "bun install react-leaflet",
     "bun install leaflet react-leaflet",
-    "bun install -D @types/leaflet"
+    "bun install -D @types/leaflet",
+    "bun uninstall leaflet react-leaflet @types/leaflet"
 ];
     
     if (commands.length === 0) {
