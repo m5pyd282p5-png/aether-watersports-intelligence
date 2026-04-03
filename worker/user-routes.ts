@@ -7,61 +7,79 @@ import { MOCK_SPOTS } from "@shared/mock-data";
 export function userRoutes(app: Hono<{ Bindings: Env }>) {
   // SPOTS LIST
   app.get('/api/spots', async (c) => {
-    // Top-up seeding: Ensure all mock spots exist in DO
-    const listResult = await SpotEntity.list(c.env, null, 100);
-    const existingIds = listResult.items || [];
-    const existingIdSet = new Set(existingIds.map(s => s?.id || '').filter(Boolean));
-    const missingSpots = MOCK_SPOTS.filter(s => !existingIdSet.has(s.id));
-    if (missingSpots.length > 0) {
-      for (const spot of missingSpots) {
-        await SpotEntity.create(c.env, spot);
+    try {
+      const region = c.req.query('region');
+      const cursor = c.req.query('cursor');
+      const limitParam = c.req.query('limit');
+      const limit = limitParam ? Math.max(1, Math.min(100, (Number(limitParam) | 0))) : 100;
+      // Seeding validation & top-up
+      const listResult = await SpotEntity.list(c.env, null, 100);
+      const existingSpots = listResult.items || [];
+      if (existingSpots.length < MOCK_SPOTS.length) {
+        const existingIdSet = new Set(existingSpots.filter(Boolean).map(s => s.id));
+        for (const mockSpot of MOCK_SPOTS) {
+          if (!existingIdSet.has(mockSpot.id)) {
+            await SpotEntity.create(c.env, mockSpot);
+          }
+        }
       }
+      let { items, next } = await SpotEntity.list(c.env, cursor ?? null, limit);
+      // Defensive filtering for corrupted or empty storage records
+      let validItems = items.filter((spot): spot is any => 
+        !!spot && typeof spot === 'object' && !!spot.id && !!spot.name
+      );
+      if (region && region !== 'All') {
+        const targetRegion = region.toLowerCase();
+        validItems = validItems.filter(s => s.region?.toLowerCase() === targetRegion);
+      }
+      return ok(c, { items: validItems, next });
+    } catch (err) {
+      console.error('[API ERROR] Failed to list spots:', err);
+      return bad(c, 'Failed to retrieve spots data');
     }
-    const cursor = c.req.query('cursor');
-    const limit = c.req.query('limit');
-    const region = c.req.query('region');
-    let { items, next } = await SpotEntity.list(
-      c.env,
-      cursor ?? null,
-      limit ? Math.max(1, (Number(limit) | 0)) : 100
-    );
-    if (region && region !== 'All') {
-      items = items.filter(s => s.region === region);
-    }
-    items = items.filter((spot): spot is any => !!spot && !!spot.name && !!spot.location && !!spot.region && !!spot.sportRatings);
-    return ok(c, { items, next });
   });
   // SINGLE SPOT
   app.get('/api/spots/:id', async (c) => {
     const id = c.req.param('id');
-    const spot = new SpotEntity(c.env, id);
-    if (!await spot.exists()) {
-      return notFound(c, 'Spot not found');
-    }
-    const data = await spot.getState();
-    return ok(c, data);
-  });
-  // ANALYZE SPOT
-  app.post('/api/spots/:id/analyze', async (c) => {
-    const id = c.req.param('id');
+    if (!id) return bad(c, 'ID required');
     const spotEntity = new SpotEntity(c.env, id);
     if (!await spotEntity.exists()) {
       return notFound(c, 'Spot not found');
     }
-    const currentState = await spotEntity.getState();
-    const analysis = analyzeForecast(currentState.forecast);
-    const updatedState = await spotEntity.mutate((s) => ({
-      ...s,
-      ...analysis,
-      aiInsight: {
-        ...s.aiInsight,
-        ...(analysis.aiInsight as any)
-      },
-      sportRatings: {
-        ...s.sportRatings,
-        ...(analysis.sportRatings as any)
-      }
-    }));
-    return ok(c, updatedState);
+    try {
+      const data = await spotEntity.getState();
+      return ok(c, data);
+    } catch (err) {
+      return bad(c, 'Failed to fetch spot intelligence');
+    }
+  });
+  // ANALYZE SPOT
+  app.post('/api/spots/:id/analyze', async (c) => {
+    const id = c.req.param('id');
+    if (!id) return bad(c, 'ID required');
+    const spotEntity = new SpotEntity(c.env, id);
+    if (!await spotEntity.exists()) {
+      return notFound(c, 'Spot not found');
+    }
+    try {
+      const currentState = await spotEntity.getState();
+      const analysis = analyzeForecast(currentState.forecast || []);
+      const updatedState = await spotEntity.mutate((s) => ({
+        ...s,
+        ...analysis,
+        aiInsight: {
+          ...s.aiInsight,
+          ...(analysis.aiInsight || {})
+        },
+        sportRatings: {
+          ...s.sportRatings,
+          ...(analysis.sportRatings || {})
+        }
+      }));
+      return ok(c, updatedState);
+    } catch (err) {
+      console.error('[API ERROR] Analysis failed:', err);
+      return bad(c, 'Meteorological analysis engine failure');
+    }
   });
 }

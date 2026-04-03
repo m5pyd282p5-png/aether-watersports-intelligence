@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useMemo } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Search, MapPin, Wind, Waves, Compass, X, RotateCcw } from 'lucide-react'
 import { Input } from '@/components/ui/input'
@@ -22,17 +22,18 @@ export function ExplorePage() {
     queryFn: () => api<{ items: Spot[] }>('/api/spots'),
   })
   const spots = data?.items ?? []
-  const validSpots: Spot[] = spots.filter((s): s is Spot => 
-    Boolean(s && s.name && s.location && s.region && s.sportRatings && s.aiInsight)
-  )
-  const filteredSpots = validSpots.filter(s => {
-    const matchesSearch = (s.name?.toLowerCase() ?? '').includes(search.toLowerCase()) ||
-                          (s.location?.toLowerCase() ?? '').includes(search.toLowerCase()) ||
-                          (s.region?.toLowerCase() ?? '').includes(search.toLowerCase());
-    const matchesSport = sportFilter === 'all' || (s.sportRatings[sportFilter as keyof typeof s.sportRatings] ?? 0) >= 7;
-    const matchesRegion = regionFilter === 'All' || s.region === regionFilter;
-    return matchesSearch && matchesSport && matchesRegion;
-  });
+  const filteredSpots = useMemo(() => {
+    return spots.filter((s): s is Spot => {
+      if (!s || !s.id || !s.name) return false;
+      const matchesSearch = (s.name?.toLowerCase() ?? '').includes(search.toLowerCase()) ||
+                            (s.location?.toLowerCase() ?? '').includes(search.toLowerCase()) ||
+                            (s.region?.toLowerCase() ?? '').includes(search.toLowerCase());
+      const sportRating = s.sportRatings ? (s.sportRatings[sportFilter as keyof typeof s.sportRatings] ?? 0) : 0;
+      const matchesSport = sportFilter === 'all' || sportRating >= 7;
+      const matchesRegion = regionFilter === 'All' || s.region === regionFilter;
+      return matchesSearch && matchesSport && matchesRegion;
+    });
+  }, [spots, search, sportFilter, regionFilter]);
   const getSportIcon = (sport: string) => {
     switch (sport) {
       case 'windsurf': return <Wind className="h-3 w-3" />;
@@ -65,7 +66,7 @@ export function ExplorePage() {
               onChange={(e) => setSearch(e.target.value)}
             />
             {search && (
-              <button 
+              <button
                 onClick={() => setSearch('')}
                 className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground p-1"
               >
@@ -106,9 +107,9 @@ export function ExplorePage() {
               className="justify-start bg-secondary/40 p-1 rounded-xl w-fit border border-border/10"
             >
               {['all', 'windsurf', 'kite', 'wing', 'surf'].map((sport) => (
-                <ToggleGroupItem 
+                <ToggleGroupItem
                   key={sport}
-                  value={sport} 
+                  value={sport}
                   className="px-5 rounded-lg data-[state=on]:bg-background data-[state=on]:text-primary data-[state=on]:shadow-sm transition-all capitalize"
                 >
                   {sport === 'kite' ? 'Kitesurf' : sport === 'wing' ? 'Wingfoil' : sport}
@@ -133,46 +134,46 @@ export function ExplorePage() {
           <AnimatePresence mode="popLayout">
             {filteredSpots.map((spot) => (
               <motion.div
-                key={spot.id || spot.name || Math.random().toString()}
+                key={spot.id}
                 layout
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, scale: 0.95 }}
                 transition={{ duration: 0.3 }}
               >
-                <Link to={`/spot/${spot.id || 'unknown'}`}>
+                <Link to={`/spot/${spot.id}`}>
                   <Card className="glass-panel group overflow-hidden border-border hover:border-primary/40 transition-all duration-300 shadow-xl hover:shadow-primary/5 h-full flex flex-col">
                     <div className="aspect-[4/3] relative overflow-hidden shrink-0">
                       <img
-                        src={spot.image || '/placeholder-spot.jpg'}
-                        alt={spot.name ?? 'Unknown Spot'}
+                        src={spot.image || 'https://images.unsplash.com/photo-1502680390469-be75c86b636f?auto=format&fit=crop&q=80&w=800'}
+                        alt={spot.name}
                         className="object-cover w-full h-full group-hover:scale-105 transition-transform duration-700"
                       />
                       <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
                       <div className="absolute top-4 left-4">
                         <Badge className="bg-white/10 backdrop-blur-md border-white/20 text-white text-[10px] uppercase font-bold tracking-widest">
-                          {spot.region ?? 'Unknown'}
+                          {spot.region}
                         </Badge>
                       </div>
                       <div className="absolute bottom-4 left-4 right-4 flex justify-between items-end">
                         <div className="space-y-1">
                           <div className="flex items-center gap-1 text-white/80 text-xs font-medium">
                             <MapPin className="h-3 w-3" />
-                            {spot.location ?? ''}
+                            {spot.location}
                           </div>
-                          <h3 className="text-xl font-bold text-white leading-tight font-display">{spot.name ?? 'Unknown Spot'}</h3>
+                          <h3 className="text-xl font-bold text-white leading-tight font-display">{spot.name}</h3>
                         </div>
                         <Badge className="bg-accent text-white border-none text-sm font-bold h-10 w-10 flex items-center justify-center p-0 rounded-xl shadow-lg shadow-accent/20">
-                          {spot.generalRating ?? 0}
+                          {spot.generalRating}
                         </Badge>
                       </div>
                     </div>
                     <CardContent className="p-6 space-y-4 flex-grow flex flex-col justify-between">
                       <p className="text-sm text-muted-foreground line-clamp-2 leading-relaxed italic">
-                        "{spot.aiInsight?.summary ?? 'No insights available'}"
+                        "{spot.aiInsight?.summary ?? 'Optimal conditions analysis active.'}"
                       </p>
                       <div className="pt-2 flex flex-wrap gap-2">
-                        {Object.entries(spot.sportRatings ?? {}).map(([sport, rating]) => {
+                        {spot.sportRatings && Object.entries(spot.sportRatings).map(([sport, rating]) => {
                           if (rating > 7) {
                             return (
                               <div key={sport} className="flex items-center gap-2 px-2.5 py-1.5 rounded-lg bg-secondary/50 border border-border group-hover:border-primary/20 transition-colors">
@@ -192,8 +193,8 @@ export function ExplorePage() {
             ))}
           </AnimatePresence>
           {filteredSpots.length === 0 && (
-            <motion.div 
-              initial={{ opacity: 0 }} 
+            <motion.div
+              initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               className="col-span-full py-32 text-center space-y-6 bg-secondary/20 rounded-3xl border-2 border-dashed border-border"
             >

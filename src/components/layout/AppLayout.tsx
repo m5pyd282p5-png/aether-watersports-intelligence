@@ -15,13 +15,15 @@ export function AppLayout({ children, container = false, className, contentClass
       <SidebarProvider defaultOpen={false}>
         <AppSidebar />
         <SidebarInset className={className}>
-          <header className="sticky top-0 z-30 w-full flex h-14 items-center justify-between px-4 bg-background/50 backdrop-blur-md border-b border-border/10 md:bg-transparent md:border-none md:absolute">
+          <header className="sticky top-0 z-40 w-full flex h-16 items-center justify-between px-6 bg-background/80 backdrop-blur-xl border-b border-border/10">
             <div className="flex items-center gap-2">
-              <SidebarTrigger className="h-9 w-9" />
+              <SidebarTrigger className="h-10 w-10" />
             </div>
-            <ThemeToggle className="relative top-0 right-0" />
+            <div className="flex items-center">
+              <ThemeToggle className="relative top-0 right-0 h-10 w-10" />
+            </div>
           </header>
-          <main className="relative">
+          <main className="relative flex-1 min-h-[calc(100vh-4rem)]">
             {container ? (
               <div className={"max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-10 lg:py-12" + (contentClassName ? ` ${contentClassName}` : "")}>
                 {children}

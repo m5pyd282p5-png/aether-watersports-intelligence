@@ -6,6 +6,7 @@ import { createRoot } from 'react-dom/client'
 import {
   createBrowserRouter,
   RouterProvider,
+  Navigate,
 } from "react-router-dom";
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
@@ -15,7 +16,14 @@ import { HomePage } from '@/pages/HomePage'
 import { ExplorePage } from '@/pages/ExplorePage'
 import { SpotPage } from '@/pages/SpotPage'
 import { AppLayout } from '@/components/layout/AppLayout'
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      retry: 1,
+      refetchOnWindowFocus: false,
+    },
+  },
+});
 const router = createBrowserRouter([
   {
     path: "/",
@@ -31,6 +39,10 @@ const router = createBrowserRouter([
     path: "/spot/:id",
     element: <AppLayout container><SpotPage /></AppLayout>,
     errorElement: <RouteErrorBoundary />,
+  },
+  {
+    path: "*",
+    element: <Navigate to="/" replace />,
   },
 ]);
 createRoot(document.getElementById('root')!).render(
