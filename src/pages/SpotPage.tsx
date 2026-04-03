@@ -12,7 +12,6 @@ import {
   RefreshCw,
   Info,
   ShieldCheck,
-  Users,
   Anchor,
   Phone,
   ExternalLink,
@@ -24,7 +23,7 @@ import {
   Area,
   XAxis,
   YAxis,
-  Tooltip,
+  Tooltip as RechartsTooltip,
   CartesianGrid
 } from 'recharts'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
@@ -258,7 +257,7 @@ export function SpotPage() {
                     <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#ffffff10" />
                     <XAxis dataKey="time" axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#888' }} />
                     <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#888' }} unit="kt" />
-                    <Tooltip
+                    <RechartsTooltip
                       contentStyle={{ backgroundColor: '#0f172a', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '12px' }}
                       itemStyle={{ fontWeight: 'bold' }}
                     />

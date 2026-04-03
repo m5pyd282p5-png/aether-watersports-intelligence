@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Search, MapPin, Wind, Waves, Compass, X, RotateCcw, Shield, Users, RefreshCw } from 'lucide-react'
+import { Search, MapPin, Wind, Waves, Compass, X, RotateCcw, RefreshCw } from 'lucide-react'
 import { Input } from '@/components/ui/input'
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
 import { Card, CardContent } from '@/components/ui/card'
@@ -65,6 +65,7 @@ export function ExplorePage() {
         <div className="flex justify-center gap-4">
           <Button onClick={() => refetch()} variant="outline">Retry Fetch</Button>
           <Button onClick={() => resyncData()} disabled={isResyncing}>
+             <RefreshCw className={cn("h-4 w-4 mr-2", isResyncing && "animate-spin")} />
             {isResyncing ? 'Re-Syncing...' : 'Force System Re-Sync'}
           </Button>
         </div>

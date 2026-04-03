@@ -3,6 +3,7 @@ import { SidebarProvider, SidebarInset, SidebarTrigger } from "@/components/ui/s
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { AppSidebar } from "@/components/app-sidebar";
 import { ThemeToggle } from "@/components/ThemeToggle";
+import { cn } from "@/lib/utils";
 type AppLayoutProps = {
   children: React.ReactNode;
   container?: boolean;
@@ -14,7 +15,7 @@ export function AppLayout({ children, container = false, className, contentClass
     <TooltipProvider delayDuration={0}>
       <SidebarProvider defaultOpen={false}>
         <AppSidebar />
-        <SidebarInset className={className}>
+        <SidebarInset className={cn("bg-background", className)}>
           <header className="sticky top-0 z-40 w-full flex h-16 items-center justify-between px-6 bg-background/80 backdrop-blur-xl border-b border-border/10">
             <div className="flex items-center gap-2">
               <SidebarTrigger className="h-10 w-10" />
@@ -25,7 +26,10 @@ export function AppLayout({ children, container = false, className, contentClass
           </header>
           <main className="relative flex-1 min-h-[calc(100vh-4rem)]">
             {container ? (
-              <div className={"max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-10 lg:py-12" + (contentClassName ? ` ${contentClassName}` : "")}>
+              <div className={cn(
+                "max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-10 lg:py-12",
+                contentClassName
+              )}>
                 {children}
               </div>
             ) : (
