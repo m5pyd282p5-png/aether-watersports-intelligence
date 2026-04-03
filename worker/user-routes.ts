@@ -3,18 +3,32 @@ import type { Env } from './core-utils';
 import { SpotEntity } from "./entities";
 import { ok, notFound, bad } from './core-utils';
 import { analyzeForecast } from "./ai-engine";
+import { MOCK_SPOTS } from "@shared/mock-data";
 export function userRoutes(app: Hono<{ Bindings: Env }>) {
   // SPOTS LIST
   app.get('/api/spots', async (c) => {
-    await SpotEntity.ensureSeed(c.env);
+    // Top-up seeding: Ensure all mock spots exist in DO
+    const idx = new SpotEntity(c.env, 'dummy'); // We need env to check index
+    const { items: existingIds } = await SpotEntity.list(c.env, null, 100);
+    const existingIdSet = new Set(existingIds.map(s => s.id));
+    const missingSpots = MOCK_SPOTS.filter(s => !existingIdSet.has(s.id));
+    if (missingSpots.length > 0) {
+      for (const spot of missingSpots) {
+        await SpotEntity.create(c.env, spot);
+      }
+    }
     const cursor = c.req.query('cursor');
     const limit = c.req.query('limit');
-    const page = await SpotEntity.list(
+    const region = c.req.query('region');
+    let { items, next } = await SpotEntity.list(
       c.env,
       cursor ?? null,
-      limit ? Math.max(1, (Number(limit) | 0)) : 20
+      limit ? Math.max(1, (Number(limit) | 0)) : 100
     );
-    return ok(c, page);
+    if (region && region !== 'All') {
+      items = items.filter(s => s.region === region);
+    }
+    return ok(c, { items, next });
   });
   // SINGLE SPOT
   app.get('/api/spots/:id', async (c) => {
@@ -40,11 +54,11 @@ export function userRoutes(app: Hono<{ Bindings: Env }>) {
       ...analysis,
       aiInsight: {
         ...s.aiInsight,
-        ...analysis.aiInsight
+        ...(analysis.aiInsight as any)
       },
       sportRatings: {
         ...s.sportRatings,
-        ...analysis.sportRatings
+        ...(analysis.sportRatings as any)
       }
     }));
     return ok(c, updatedState);

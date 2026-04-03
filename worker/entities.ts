@@ -8,6 +8,7 @@ export class SpotEntity extends IndexedEntity<Spot> {
     id: "",
     name: "",
     location: "",
+    region: "",
     image: "",
     description: "",
     generalRating: 0,

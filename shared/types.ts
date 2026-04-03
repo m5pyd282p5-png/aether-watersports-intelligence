@@ -26,6 +26,7 @@ export interface Spot {
   id: string;
   name: string;
   location: string;
+  region: string;
   image: string;
   description: string;
   generalRating: number;
