@@ -7,7 +7,7 @@ import { Badge } from '@/components/ui/badge'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Button } from '@/components/ui/button'
 import { Link } from 'react-router-dom'
-import { Compass, Star, ArrowRight, MapPin } from 'lucide-react'
+import { Compass, Star, ArrowRight, MapPin, Layers } from 'lucide-react'
 import { ResponsiveContainer, AreaChart, Area } from 'recharts'
 import type { Spot } from '@shared/types'
 // Fix Leaflet marker icons which break in bundlers
@@ -30,12 +30,12 @@ const createCustomIcon = (sport: string): L.DivIcon => {
   const color = getSportColor(sport);
   return L.divIcon({
     className: 'custom-div-icon',
-    html: `<div style="background-color: ${color}; width: 34px; height: 34px; border-radius: 50%; border: 3px solid white; box-shadow: 0 4px 12px rgba(0,0,0,0.4); display: flex; align-items: center; justify-content: center; color: white;">
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+    html: `<div style="background-color: ${color}; width: 36px; height: 36px; border-radius: 50%; border: 3px solid white; box-shadow: 0 4px 15px rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; color: white;">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
     </div>`,
-    iconSize: [34, 34],
-    iconAnchor: [17, 17],
-    popupAnchor: [0, -17]
+    iconSize: [36, 36],
+    iconAnchor: [18, 18],
+    popupAnchor: [0, -18]
   });
 }
 export function MapPage() {
@@ -51,22 +51,27 @@ export function MapPage() {
           <Skeleton className="h-12 w-64" />
           <Skeleton className="h-6 w-96" />
         </header>
-        <Skeleton className="h-[70vh] w-full rounded-3xl" />
+        <Skeleton className="h-[70vh] w-full rounded-4xl" />
       </div>
     )
   }
   return (
-    <div className="space-y-10">
-      <header className="space-y-4">
-        <h1 className="text-4xl md:text-5xl font-display font-bold">Map Intelligence</h1>
-        <p className="text-muted-foreground text-lg max-w-2xl">
-          Visualizing Aegean pressure systems and regional spot alignment across the archipelago.
-        </p>
+    <div className="space-y-10 animate-in slide-in-from-bottom-4 duration-700">
+      <header className="space-y-4 flex flex-col md:flex-row md:items-end justify-between gap-6">
+        <div className="space-y-2">
+          <h1 className="text-4xl md:text-5xl font-display font-bold">Map Intelligence</h1>
+          <p className="text-muted-foreground text-lg max-w-2xl">
+            Real-time visualization of Aegean pressure systems and spot alignment.
+          </p>
+        </div>
+        <Badge variant="outline" className="w-fit px-4 py-1.5 gap-2 border-primary/20 bg-primary/5 text-primary">
+          <Layers className="h-4 w-4" /> {spots.length} Nodes Online
+        </Badge>
       </header>
-      <div className="h-[70vh] w-full rounded-4xl overflow-hidden border border-white/10 shadow-2xl relative z-0 glass-panel">
+      <div className="h-[70vh] w-full rounded-4xl overflow-hidden border border-border shadow-2xl relative z-0 glass-panel">
         <MapContainer
-          center={[37.9, 24.5]} // Center shifted slightly for better coverage of Ionian and Dodecanese
-          zoom={6} // Zoomed out to encompass the full expansion
+          center={[37.9, 24.5]}
+          zoom={6}
           style={{ height: '100%', width: '100%', background: '#0f172a' }}
           zoomControl={false}
         >
@@ -80,8 +85,8 @@ export function MapPage() {
               position={[spot.lat, spot.lng]}
               icon={createCustomIcon(spot.aiInsight.idealSport)}
             >
-              <Popup className="aether-popup" minWidth={300}>
-                <div className="p-3 space-y-4 bg-[#0f172a] text-white rounded-2xl border border-white/10 shadow-2xl">
+              <Popup className="aether-popup" minWidth={320}>
+                <div className="p-4 space-y-4 bg-card text-card-foreground rounded-2xl border border-border shadow-2xl backdrop-blur-md">
                   <div className="flex justify-between items-start gap-4">
                     <div className="space-y-1">
                       <div className="flex items-center gap-1.5">
@@ -89,41 +94,46 @@ export function MapPage() {
                           {spot.region}
                         </Badge>
                       </div>
-                      <h3 className="font-display font-bold text-xl leading-tight text-white">{spot.name}</h3>
-                      <div className="flex items-center gap-2 text-xs text-slate-400">
+                      <h3 className="font-display font-bold text-xl leading-tight">{spot.name}</h3>
+                      <div className="flex items-center gap-2 text-xs text-muted-foreground">
                         <Compass className="h-3.5 w-3.5" />
-                        Best: <span className="text-white font-medium">{spot.bestDirection}</span>
+                        Best: <span className="text-foreground font-medium">{spot.bestDirection}</span>
                       </div>
                     </div>
-                    <div className="flex flex-col items-center">
-                      <div className="text-[10px] text-slate-500 font-bold uppercase mb-1">Score</div>
-                      <Badge className="bg-accent text-white border-none text-sm font-bold px-2 py-1 h-9 w-9 flex items-center justify-center rounded-lg">
+                    <div className="flex flex-col items-center shrink-0">
+                      <div className="text-[10px] text-muted-foreground font-bold uppercase mb-1">Rating</div>
+                      <Badge className="bg-accent text-white border-none text-sm font-bold px-2 py-1 h-10 w-10 flex items-center justify-center rounded-xl shadow-lg shadow-accent/20">
                         {spot.generalRating}
                       </Badge>
                     </div>
                   </div>
-                  <div className="h-24 w-full bg-white/5 rounded-xl overflow-hidden p-2">
+                  <div className="h-28 w-full bg-secondary/50 rounded-xl overflow-hidden p-2 border border-border/50">
                     <ResponsiveContainer width="100%" height="100%">
                       <AreaChart data={spot.forecast.slice(0, 12)}>
+                        <defs>
+                          <linearGradient id={`colorWind-${spot.id}`} x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="5%" stopColor={getSportColor(spot.aiInsight.idealSport)} stopOpacity={0.3}/>
+                            <stop offset="95%" stopColor={getSportColor(spot.aiInsight.idealSport)} stopOpacity={0}/>
+                          </linearGradient>
+                        </defs>
                         <Area
                           type="monotone"
                           dataKey="windSpeed"
                           stroke={getSportColor(spot.aiInsight.idealSport)}
-                          fill={getSportColor(spot.aiInsight.idealSport)}
-                          fillOpacity={0.3}
-                          strokeWidth={2.5}
+                          fill={`url(#colorWind-${spot.id})`}
+                          strokeWidth={3}
                         />
                       </AreaChart>
                     </ResponsiveContainer>
                   </div>
-                  <div className="flex items-center justify-between pt-1 border-t border-white/5">
+                  <div className="flex items-center justify-between pt-2 border-t border-border/50">
                     <div className="flex flex-col">
-                      <span className="text-[9px] uppercase font-bold text-slate-500 tracking-wider">AI Suggestion</span>
-                      <span className="text-xs font-bold text-white">{spot.aiInsight.idealSport}</span>
+                      <span className="text-[10px] uppercase font-bold text-muted-foreground tracking-wider">Top Rec</span>
+                      <span className="text-sm font-bold text-foreground">{spot.aiInsight.idealSport}</span>
                     </div>
-                    <Button size="sm" variant="outline" className="h-9 px-4 text-xs font-bold border-white/10 hover:bg-white/10 text-white rounded-xl" asChild>
+                    <Button size="sm" variant="default" className="h-9 px-4 text-xs font-bold rounded-xl shadow-sm" asChild>
                       <Link to={`/spot/${spot.id}`}>
-                        Deep Dive <ArrowRight className="ml-2 h-3.5 w-3.5" />
+                        View Detail <ArrowRight className="ml-2 h-3.5 w-3.5" />
                       </Link>
                     </Button>
                   </div>
@@ -133,17 +143,21 @@ export function MapPage() {
           ))}
         </MapContainer>
       </div>
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         {[
           { label: 'Windsurf', color: '#0ea5e9' },
           { label: 'Kitesurf', color: '#f97316' },
           { label: 'Wingfoil', color: '#8b5cf6' },
           { label: 'Surf', color: '#10b981' }
         ].map(item => (
-          <div key={item.label} className="flex items-center gap-3 p-4 rounded-2xl bg-white/5 border border-white/5">
-            <div className="h-3.5 w-3.5 rounded-full" style={{ backgroundColor: item.color }} />
+          <motion.div 
+            key={item.label} 
+            whileHover={{ y: -2 }}
+            className="flex items-center gap-3 p-4 rounded-2xl bg-secondary/40 border border-border/50 backdrop-blur-sm"
+          >
+            <div className="h-4 w-4 rounded-full shadow-inner" style={{ backgroundColor: item.color }} />
             <span className="text-sm font-semibold">{item.label} Primary</span>
-          </div>
+          </motion.div>
         ))}
       </div>
     </div>

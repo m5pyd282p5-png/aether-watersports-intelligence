@@ -5,6 +5,28 @@
 @tailwind utilities;
 @layer base {
   :root {
+    --background: 210 40% 98%;
+    --foreground: 222 47% 11%;
+    --card: 0 0% 100%;
+    --card-foreground: 222 47% 11%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 222 47% 11%;
+    --primary: 199 89% 48%;
+    --primary-foreground: 210 40% 98%;
+    --secondary: 210 40% 96.1%;
+    --secondary-foreground: 222 47% 11%;
+    --muted: 210 40% 96.1%;
+    --muted-foreground: 215.4 16.3% 46.9%;
+    --accent: 25 95% 53%;
+    --accent-foreground: 210 40% 98%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 214.3 31.8% 91.4%;
+    --input: 214.3 31.8% 91.4%;
+    --ring: 199 89% 48%;
+    --radius: 0.75rem;
+  }
+  .dark {
     --background: 222 47% 11%;
     --foreground: 210 40% 98%;
     --card: 222 47% 13%;
@@ -24,34 +46,31 @@
     --border: 217 32% 17%;
     --input: 217 32% 17%;
     --ring: 199 89% 48%;
-    --radius: 0.75rem;
-  }
-  .light {
-    --background: 210 40% 98%;
-    --foreground: 222 47% 11%;
-    --card: 0 0% 100%;
-    --card-foreground: 222 47% 11%;
-    --primary: 199 89% 48%;
-    --primary-foreground: 210 40% 98%;
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
-    --accent: 25 95% 53%;
-    --accent-foreground: 210 40% 98%;
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
   }
 }
 @layer components {
   .glass-panel {
-    @apply bg-background/60 backdrop-blur-xl border border-white/10 shadow-2xl;
+    @apply bg-background/60 backdrop-blur-xl border border-border/50 shadow-2xl transition-colors duration-300;
+  }
+  .dark .glass-panel {
+    @apply bg-card/40 border-white/10;
   }
   .text-display {
     font-family: 'Playfair Display', serif;
     @apply tracking-tight leading-tight;
   }
   .hero-gradient {
-    background: radial-gradient(circle at top right, rgba(14, 165, 233, 0.15), transparent),
-                radial-gradient(circle at bottom left, rgba(249, 115, 22, 0.1), transparent);
+    background: radial-gradient(circle at top right, rgba(14, 165, 233, 0.1), transparent),
+                radial-gradient(circle at bottom left, rgba(249, 115, 22, 0.05), transparent);
+  }
+}
+@layer utilities {
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
   }
 }
 .leaflet-popup-content-wrapper {
@@ -65,9 +84,15 @@
 .leaflet-popup-tip-container {
   display: none !important;
 }
+.leaflet-container {
+  @apply rounded-4xl;
+}
+html {
+  scroll-behavior: smooth;
+}
 * {
   @apply border-border;
 }
 body {
-  @apply bg-background text-foreground font-sans antialiased min-h-screen hero-gradient;
+  @apply bg-background text-foreground font-sans antialiased min-h-screen hero-gradient transition-colors duration-300;
 }

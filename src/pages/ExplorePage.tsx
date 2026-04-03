@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Search, MapPin, Wind, Waves, Compass, X } from 'lucide-react'
+import { Search, MapPin, Wind, Waves, Compass, X, RotateCcw } from 'lucide-react'
 import { Input } from '@/components/ui/input'
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
 import { Card, CardContent } from '@/components/ui/card'
@@ -24,7 +24,8 @@ export function ExplorePage() {
   const spots = data?.items ?? []
   const filteredSpots = spots.filter(s => {
     const matchesSearch = s.name.toLowerCase().includes(search.toLowerCase()) ||
-                          s.location.toLowerCase().includes(search.toLowerCase());
+                          s.location.toLowerCase().includes(search.toLowerCase()) ||
+                          s.region.toLowerCase().includes(search.toLowerCase());
     const matchesSport = sportFilter === 'all' || s.sportRatings[sportFilter as keyof typeof s.sportRatings] >= 7;
     const matchesRegion = regionFilter === 'All' || s.region === regionFilter;
     return matchesSearch && matchesSport && matchesRegion;
@@ -38,43 +39,55 @@ export function ExplorePage() {
   }
   if (error) {
     return (
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 text-center space-y-4">
-        <p className="text-destructive font-medium text-xl">Failed to load spots. Please try again later.</p>
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 text-center space-y-6 glass-panel rounded-3xl">
+        <p className="text-destructive font-medium text-xl">System synchronization failure.</p>
+        <Button onClick={() => window.location.reload()} variant="outline">Retry Sync</Button>
       </div>
     )
   }
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12 space-y-10">
+    <div className="space-y-10 animate-in fade-in duration-700">
       <header className="space-y-8">
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
           <div className="space-y-2">
             <h1 className="text-4xl md:text-5xl font-display font-bold">Spot Explorer</h1>
-            <p className="text-muted-foreground">Discover the best sessions across the Hellenic archipelago.</p>
+            <p className="text-muted-foreground text-lg">Discover the best sessions across the Hellenic archipelago.</p>
           </div>
-          <div className="relative w-full md:w-80">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <div className="relative w-full md:w-80 group">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground transition-colors group-focus-within:text-primary" />
             <Input
-              placeholder="Search spots or regions..."
-              className="pl-10 h-12 bg-white/5 border-white/10 rounded-xl focus-visible:ring-primary"
+              placeholder="Search spots, islands..."
+              className="pl-10 pr-10 h-12 bg-secondary/50 border-input rounded-xl focus-visible:ring-primary focus-visible:bg-background"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
             />
+            {search && (
+              <button 
+                onClick={() => setSearch('')}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground p-1"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            )}
           </div>
         </div>
-        <div className="flex flex-col gap-6">
+        <div className="flex flex-col gap-8">
           <div className="space-y-3">
-            <span className="text-xs font-bold uppercase tracking-widest text-muted-foreground ml-1">By Region</span>
-            <ToggleGroup 
-              type="single" 
-              value={regionFilter} 
-              onValueChange={(val) => val && setRegionFilter(val)} 
-              className="justify-start overflow-x-auto no-scrollbar pb-2 flex-nowrap"
+            <div className="flex items-center justify-between px-1">
+              <span className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Regional Sector</span>
+              <span className="text-xs text-muted-foreground">{filteredSpots.length} Results</span>
+            </div>
+            <ToggleGroup
+              type="single"
+              value={regionFilter}
+              onValueChange={(val) => val && setRegionFilter(val)}
+              className="justify-start overflow-x-auto no-scrollbar pb-2 flex-nowrap gap-2"
             >
               {REGIONS.map(region => (
-                <ToggleGroupItem 
-                  key={region} 
-                  value={region} 
-                  className="px-6 rounded-full border border-white/5 data-[state=on]:bg-primary data-[state=on]:text-primary-foreground whitespace-nowrap"
+                <ToggleGroupItem
+                  key={region}
+                  value={region}
+                  className="px-6 rounded-full border border-border bg-background/50 data-[state=on]:bg-primary data-[state=on]:text-primary-foreground data-[state=on]:border-primary transition-all whitespace-nowrap"
                 >
                   {region}
                 </ToggleGroupItem>
@@ -82,24 +95,28 @@ export function ExplorePage() {
             </ToggleGroup>
           </div>
           <div className="space-y-3">
-            <span className="text-xs font-bold uppercase tracking-widest text-muted-foreground ml-1">By Sport</span>
-            <ToggleGroup 
-              type="single" 
-              value={sportFilter} 
-              onValueChange={(val) => val && setSportFilter(val)} 
-              className="justify-start bg-white/5 p-1 rounded-xl w-fit"
+            <span className="text-xs font-bold uppercase tracking-widest text-muted-foreground ml-1">Discipline</span>
+            <ToggleGroup
+              type="single"
+              value={sportFilter}
+              onValueChange={(val) => val && setSportFilter(val)}
+              className="justify-start bg-secondary/40 p-1 rounded-xl w-fit border border-border/10"
             >
-              <ToggleGroupItem value="all" className="px-5 rounded-lg data-[state=on]:bg-primary data-[state=on]:text-primary-foreground">All Sports</ToggleGroupItem>
-              <ToggleGroupItem value="windsurf" className="px-5 rounded-lg data-[state=on]:bg-primary data-[state=on]:text-primary-foreground">Windsurf</ToggleGroupItem>
-              <ToggleGroupItem value="kite" className="px-5 rounded-lg data-[state=on]:bg-primary data-[state=on]:text-primary-foreground">Kitesurf</ToggleGroupItem>
-              <ToggleGroupItem value="wing" className="px-5 rounded-lg data-[state=on]:bg-primary data-[state=on]:text-primary-foreground">Wingfoil</ToggleGroupItem>
-              <ToggleGroupItem value="surf" className="px-5 rounded-lg data-[state=on]:bg-primary data-[state=on]:text-primary-foreground">Surf</ToggleGroupItem>
+              {['all', 'windsurf', 'kite', 'wing', 'surf'].map((sport) => (
+                <ToggleGroupItem 
+                  key={sport}
+                  value={sport} 
+                  className="px-5 rounded-lg data-[state=on]:bg-background data-[state=on]:text-primary data-[state=on]:shadow-sm transition-all capitalize"
+                >
+                  {sport === 'kite' ? 'Kitesurf' : sport === 'wing' ? 'Wingfoil' : sport}
+                </ToggleGroupItem>
+              ))}
             </ToggleGroup>
           </div>
         </div>
       </header>
       {isLoading ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
           {[1, 2, 3, 4, 5, 6].map((i) => (
             <div key={i} className="space-y-4">
               <Skeleton className="aspect-[4/3] w-full rounded-2xl" />
@@ -109,27 +126,26 @@ export function ExplorePage() {
           ))}
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
           <AnimatePresence mode="popLayout">
             {filteredSpots.map((spot) => (
               <motion.div
                 key={spot.id}
                 layout
-                initial={{ opacity: 0, scale: 0.9 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.9 }}
-                whileHover={{ y: -5 }}
-                transition={{ duration: 0.2 }}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.95 }}
+                transition={{ duration: 0.3 }}
               >
                 <Link to={`/spot/${spot.id}`}>
-                  <Card className="glass-panel group overflow-hidden border-white/5 hover:border-primary/40 transition-all duration-300 shadow-xl hover:shadow-primary/10 h-full flex flex-col">
+                  <Card className="glass-panel group overflow-hidden border-border hover:border-primary/40 transition-all duration-300 shadow-xl hover:shadow-primary/5 h-full flex flex-col">
                     <div className="aspect-[4/3] relative overflow-hidden shrink-0">
                       <img
                         src={spot.image}
                         alt={spot.name}
-                        className="object-cover w-full h-full group-hover:scale-110 transition-transform duration-1000"
+                        className="object-cover w-full h-full group-hover:scale-105 transition-transform duration-700"
                       />
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent" />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
                       <div className="absolute top-4 left-4">
                         <Badge className="bg-white/10 backdrop-blur-md border-white/20 text-white text-[10px] uppercase font-bold tracking-widest">
                           {spot.region}
@@ -143,7 +159,7 @@ export function ExplorePage() {
                           </div>
                           <h3 className="text-xl font-bold text-white leading-tight font-display">{spot.name}</h3>
                         </div>
-                        <Badge className="bg-accent text-white border-none text-sm font-bold h-10 w-10 flex items-center justify-center p-0 rounded-xl">
+                        <Badge className="bg-accent text-white border-none text-sm font-bold h-10 w-10 flex items-center justify-center p-0 rounded-xl shadow-lg shadow-accent/20">
                           {spot.generalRating}
                         </Badge>
                       </div>
@@ -155,7 +171,7 @@ export function ExplorePage() {
                       <div className="pt-2 flex flex-wrap gap-2">
                         {Object.entries(spot.sportRatings).map(([sport, rating]) => (
                           rating > 7 && (
-                            <div key={sport} className="flex items-center gap-2 px-2.5 py-1.5 rounded-lg bg-white/5 border border-white/10 group-hover:border-primary/30 transition-colors">
+                            <div key={sport} className="flex items-center gap-2 px-2.5 py-1.5 rounded-lg bg-secondary/50 border border-border group-hover:border-primary/20 transition-colors">
                               {getSportIcon(sport)}
                               <span className="text-[10px] uppercase font-bold text-muted-foreground">{sport}</span>
                               <span className="text-xs font-bold text-primary">{rating}</span>
@@ -170,18 +186,22 @@ export function ExplorePage() {
             ))}
           </AnimatePresence>
           {filteredSpots.length === 0 && (
-            <div className="col-span-full py-32 text-center space-y-6 bg-white/5 rounded-3xl border border-dashed border-white/10">
-              <div className="h-16 w-16 bg-white/10 rounded-full flex items-center justify-center mx-auto text-muted-foreground">
-                <X className="h-8 w-8" />
+            <motion.div 
+              initial={{ opacity: 0 }} 
+              animate={{ opacity: 1 }}
+              className="col-span-full py-32 text-center space-y-6 bg-secondary/20 rounded-3xl border-2 border-dashed border-border"
+            >
+              <div className="h-20 w-20 bg-secondary rounded-full flex items-center justify-center mx-auto text-muted-foreground">
+                <Compass className="h-10 w-10" />
               </div>
               <div className="space-y-2">
-                <h3 className="text-2xl font-display font-bold">No spots found</h3>
-                <p className="text-muted-foreground">Try adjusting your filters or search terms.</p>
+                <h3 className="text-2xl font-display font-bold">No spots discovered in this sector</h3>
+                <p className="text-muted-foreground max-w-sm mx-auto">Try broadening your search criteria or resetting the filters.</p>
               </div>
-              <Button onClick={() => { setSportFilter('all'); setRegionFilter('All'); setSearch(''); }} variant="outline" className="rounded-full">
-                Reset All Filters
+              <Button onClick={() => { setSportFilter('all'); setRegionFilter('All'); setSearch(''); }} variant="outline" className="rounded-full gap-2">
+                <RotateCcw className="h-4 w-4" /> Reset Intel
               </Button>
-            </div>
+            </motion.div>
           )}
         </div>
       )}
