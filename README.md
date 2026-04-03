@@ -2,7 +2,7 @@
 
 A production-ready full-stack chat application built on Cloudflare Workers with Durable Objects for scalable, multi-tenant storage. Features real-time chat boards, user management, and a modern React frontend with Shadcn UI.
 
-[![[cloudflarebutton]]](https://deploy.workers.cloudflare.com/?url=${repositoryUrl})
+[![[![Deploy to Cloudflare](https://deploy.workers.cloudflare.com/button)](https://deploy.workers.cloudflare.com/?url=https://github.com/m5pyd282p5-png/aether-watersports-intelligence)]](https://deploy.workers.cloudflare.com/?url=${repositoryUrl})
 
 ## Features
 
@@ -94,7 +94,7 @@ This builds the frontend assets and deploys the Worker.
 
 For custom configuration, edit `wrangler.jsonc`.
 
-[![[cloudflarebutton]]](https://deploy.workers.cloudflare.com/?url=${repositoryUrl})
+[![[![Deploy to Cloudflare](https://deploy.workers.cloudflare.com/button)](https://deploy.workers.cloudflare.com/?url=https://github.com/m5pyd282p5-png/aether-watersports-intelligence)]](https://deploy.workers.cloudflare.com/?url=${repositoryUrl})
 
 ## Development Workflow
 
