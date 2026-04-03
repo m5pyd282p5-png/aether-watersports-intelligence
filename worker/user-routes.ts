@@ -8,9 +8,9 @@ export function userRoutes(app: Hono<{ Bindings: Env }>) {
   // SPOTS LIST
   app.get('/api/spots', async (c) => {
     // Top-up seeding: Ensure all mock spots exist in DO
-    const idx = new SpotEntity(c.env, 'dummy'); // We need env to check index
-    const { items: existingIds } = await SpotEntity.list(c.env, null, 100);
-    const existingIdSet = new Set(existingIds.map(s => s.id));
+    const listResult = await SpotEntity.list(c.env, null, 100);
+    const existingIds = listResult.items || [];
+    const existingIdSet = new Set(existingIds.map(s => s?.id || '').filter(Boolean));
     const missingSpots = MOCK_SPOTS.filter(s => !existingIdSet.has(s.id));
     if (missingSpots.length > 0) {
       for (const spot of missingSpots) {
@@ -28,6 +28,7 @@ export function userRoutes(app: Hono<{ Bindings: Env }>) {
     if (region && region !== 'All') {
       items = items.filter(s => s.region === region);
     }
+    items = items.filter((spot): spot is any => !!spot && !!spot.name && !!spot.location && !!spot.region && !!spot.sportRatings);
     return ok(c, { items, next });
   });
   // SINGLE SPOT

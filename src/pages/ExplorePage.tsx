@@ -22,11 +22,14 @@ export function ExplorePage() {
     queryFn: () => api<{ items: Spot[] }>('/api/spots'),
   })
   const spots = data?.items ?? []
-  const filteredSpots = spots.filter(s => {
-    const matchesSearch = s.name.toLowerCase().includes(search.toLowerCase()) ||
-                          s.location.toLowerCase().includes(search.toLowerCase()) ||
-                          s.region.toLowerCase().includes(search.toLowerCase());
-    const matchesSport = sportFilter === 'all' || s.sportRatings[sportFilter as keyof typeof s.sportRatings] >= 7;
+  const validSpots: Spot[] = spots.filter((s): s is Spot => 
+    Boolean(s && s.name && s.location && s.region && s.sportRatings && s.aiInsight)
+  )
+  const filteredSpots = validSpots.filter(s => {
+    const matchesSearch = (s.name?.toLowerCase() ?? '').includes(search.toLowerCase()) ||
+                          (s.location?.toLowerCase() ?? '').includes(search.toLowerCase()) ||
+                          (s.region?.toLowerCase() ?? '').includes(search.toLowerCase());
+    const matchesSport = sportFilter === 'all' || (s.sportRatings[sportFilter as keyof typeof s.sportRatings] ?? 0) >= 7;
     const matchesRegion = regionFilter === 'All' || s.region === regionFilter;
     return matchesSearch && matchesSport && matchesRegion;
   });
@@ -130,54 +133,57 @@ export function ExplorePage() {
           <AnimatePresence mode="popLayout">
             {filteredSpots.map((spot) => (
               <motion.div
-                key={spot.id}
+                key={spot.id || spot.name || Math.random().toString()}
                 layout
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, scale: 0.95 }}
                 transition={{ duration: 0.3 }}
               >
-                <Link to={`/spot/${spot.id}`}>
+                <Link to={`/spot/${spot.id || 'unknown'}`}>
                   <Card className="glass-panel group overflow-hidden border-border hover:border-primary/40 transition-all duration-300 shadow-xl hover:shadow-primary/5 h-full flex flex-col">
                     <div className="aspect-[4/3] relative overflow-hidden shrink-0">
                       <img
-                        src={spot.image}
-                        alt={spot.name}
+                        src={spot.image || '/placeholder-spot.jpg'}
+                        alt={spot.name ?? 'Unknown Spot'}
                         className="object-cover w-full h-full group-hover:scale-105 transition-transform duration-700"
                       />
                       <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
                       <div className="absolute top-4 left-4">
                         <Badge className="bg-white/10 backdrop-blur-md border-white/20 text-white text-[10px] uppercase font-bold tracking-widest">
-                          {spot.region}
+                          {spot.region ?? 'Unknown'}
                         </Badge>
                       </div>
                       <div className="absolute bottom-4 left-4 right-4 flex justify-between items-end">
                         <div className="space-y-1">
                           <div className="flex items-center gap-1 text-white/80 text-xs font-medium">
                             <MapPin className="h-3 w-3" />
-                            {spot.location}
+                            {spot.location ?? ''}
                           </div>
-                          <h3 className="text-xl font-bold text-white leading-tight font-display">{spot.name}</h3>
+                          <h3 className="text-xl font-bold text-white leading-tight font-display">{spot.name ?? 'Unknown Spot'}</h3>
                         </div>
                         <Badge className="bg-accent text-white border-none text-sm font-bold h-10 w-10 flex items-center justify-center p-0 rounded-xl shadow-lg shadow-accent/20">
-                          {spot.generalRating}
+                          {spot.generalRating ?? 0}
                         </Badge>
                       </div>
                     </div>
                     <CardContent className="p-6 space-y-4 flex-grow flex flex-col justify-between">
                       <p className="text-sm text-muted-foreground line-clamp-2 leading-relaxed italic">
-                        "{spot.aiInsight.summary}"
+                        "{spot.aiInsight?.summary ?? 'No insights available'}"
                       </p>
                       <div className="pt-2 flex flex-wrap gap-2">
-                        {Object.entries(spot.sportRatings).map(([sport, rating]) => (
-                          rating > 7 && (
-                            <div key={sport} className="flex items-center gap-2 px-2.5 py-1.5 rounded-lg bg-secondary/50 border border-border group-hover:border-primary/20 transition-colors">
-                              {getSportIcon(sport)}
-                              <span className="text-[10px] uppercase font-bold text-muted-foreground">{sport}</span>
-                              <span className="text-xs font-bold text-primary">{rating}</span>
-                            </div>
-                          )
-                        ))}
+                        {Object.entries(spot.sportRatings ?? {}).map(([sport, rating]) => {
+                          if (rating > 7) {
+                            return (
+                              <div key={sport} className="flex items-center gap-2 px-2.5 py-1.5 rounded-lg bg-secondary/50 border border-border group-hover:border-primary/20 transition-colors">
+                                {getSportIcon(sport)}
+                                <span className="text-[10px] uppercase font-bold text-muted-foreground">{sport}</span>
+                                <span className="text-xs font-bold text-primary">{rating}</span>
+                              </div>
+                            )
+                          }
+                          return null;
+                        })}
                       </div>
                     </CardContent>
                   </Card>
