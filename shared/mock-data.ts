@@ -22,7 +22,10 @@ export const MOCK_SPOTS: Spot[] = [
       idealSport: "Windsurf",
       timeframe: "12:00 - 19:00",
       confidence: 0.95
-    }
+    },
+    lat: 35.92,
+    lng: 27.79,
+    bestDirection: "NE Meltemi"
   },
   {
     id: 'golden-beach-paros',
@@ -38,7 +41,10 @@ export const MOCK_SPOTS: Spot[] = [
       idealSport: "Wingfoil",
       timeframe: "14:00 - 18:30",
       confidence: 0.88
-    }
+    },
+    lat: 37.01,
+    lng: 25.24,
+    bestDirection: "N Thermal"
   },
   {
     id: 'vassiliki-lefkada',
@@ -54,7 +60,67 @@ export const MOCK_SPOTS: Spot[] = [
       idealSport: "Windsurf",
       timeframe: "15:30 - 20:00",
       confidence: 0.92
-    }
+    },
+    lat: 38.62,
+    lng: 20.60,
+    bestDirection: "SW Eric"
+  },
+  {
+    id: 'keros-limnos',
+    name: 'Keros Beach',
+    location: 'Limnos, Greece',
+    image: 'https://images.unsplash.com/photo-1534120247760-c44c3e4a62f1?auto=format&fit=crop&q=80&w=800',
+    description: 'A vast bay with super shallow turquoise water. A paradise for kitesurfers and wingfoilers.',
+    generalRating: 9.0,
+    sportRatings: { windsurf: 8, kite: 10, wing: 9, surf: 3 },
+    forecast: generateForecast(19),
+    aiInsight: {
+      summary: "Limnos is catching the full force of the Aegean Meltemi today. Endless flat water speed runs.",
+      idealSport: "Kitesurf",
+      timeframe: "10:00 - 19:00",
+      confidence: 0.94
+    },
+    lat: 39.91,
+    lng: 25.36,
+    bestDirection: "NE Meltemi"
+  },
+  {
+    id: 'mikri-vigla-naxos',
+    name: 'Mikri Vigla',
+    location: 'Naxos, Greece',
+    image: 'https://images.unsplash.com/photo-1506929013022-77735952d7e5?auto=format&fit=crop&q=80&w=800',
+    description: 'The windiest spot in the Cyclades. The wind is accelerated by a funnel effect between Naxos and Paros.',
+    generalRating: 9.4,
+    sportRatings: { windsurf: 9, kite: 10, wing: 9, surf: 2 },
+    forecast: generateForecast(24),
+    aiInsight: {
+      summary: "Extreme venturi effect in the channel. Hold on to your gear, it's going to be wild.",
+      idealSport: "Kitesurf",
+      timeframe: "11:00 - 18:00",
+      confidence: 0.96
+    },
+    lat: 37.02,
+    lng: 25.37,
+    bestDirection: "N Meltemi"
+  },
+  {
+    id: 'loutsa-artemida',
+    name: 'Loutsa (Artemida)',
+    location: 'Attica, Greece',
+    image: 'https://images.unsplash.com/photo-1500375591448-4a4c84450bd8?auto=format&fit=crop&q=80&w=800',
+    description: 'The home spot for many Athenians. Shallow water and reliable North winds.',
+    generalRating: 8.2,
+    sportRatings: { windsurf: 9, kite: 6, wing: 8, surf: 2 },
+    forecast: generateForecast(16),
+    aiInsight: {
+      summary: "Close-to-city session alert. The North thermal is steady enough for a large-sail blast.",
+      idealSport: "Windsurf",
+      timeframe: "14:00 - 19:00",
+      confidence: 0.85
+    },
+    lat: 37.97,
+    lng: 24.01,
+    bestDirection: "N Thermal"
   }
 ];
 export const MOCK_USERS: User[] = [

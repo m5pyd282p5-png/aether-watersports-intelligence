@@ -18,7 +18,10 @@ export class SpotEntity extends IndexedEntity<Spot> {
       idealSport: "Windsurf",
       timeframe: "",
       confidence: 0
-    }
+    },
+    lat: 0,
+    lng: 0,
+    bestDirection: ""
   };
   static seedData = MOCK_SPOTS;
 }

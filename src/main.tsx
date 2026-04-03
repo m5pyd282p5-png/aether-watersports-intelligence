@@ -14,6 +14,7 @@ import '@/index.css'
 import { HomePage } from '@/pages/HomePage'
 import { ExplorePage } from '@/pages/ExplorePage'
 import { SpotPage } from '@/pages/SpotPage'
+import { MapPage } from '@/pages/MapPage'
 import { AppLayout } from '@/components/layout/AppLayout'
 const queryClient = new QueryClient();
 const router = createBrowserRouter([
@@ -25,6 +26,11 @@ const router = createBrowserRouter([
   {
     path: "/explore",
     element: <AppLayout container><ExplorePage /></AppLayout>,
+    errorElement: <RouteErrorBoundary />,
+  },
+  {
+    path: "/map",
+    element: <AppLayout container><MapPage /></AppLayout>,
     errorElement: <RouteErrorBoundary />,
   },
   {

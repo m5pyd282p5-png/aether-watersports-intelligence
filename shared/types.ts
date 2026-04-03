@@ -32,6 +32,9 @@ export interface Spot {
   sportRatings: SportRatings;
   forecast: ForecastPoint[];
   aiInsight: AiInsight;
+  lat: number;
+  lng: number;
+  bestDirection: string;
 }
 export interface User {
   id: string;
