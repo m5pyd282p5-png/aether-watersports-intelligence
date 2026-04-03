@@ -12,11 +12,15 @@ export function userRoutes(app: Hono<{ Bindings: Env }>) {
       const cursor = c.req.query('cursor');
       const limitParam = c.req.query('limit');
       const limit = limitParam ? Math.max(1, Math.min(100, (Number(limitParam) | 0))) : 100;
-      // Seeding validation & top-up - use individual existence checks
+      // Aggressive Seeding Verification
+      // Ensure the index is at least roughly populated.
+      await SpotEntity.ensureSeed(c.env);
       const listResult = await SpotEntity.list(c.env, null, 100);
       const existingSpots = listResult.items || [];
-      const existingIdSet = new Set(existingSpots.filter(Boolean).map(s => s.id));
+      const existingIdSet = new Set(existingSpots.filter(s => s && s.id).map(s => s.id));
+      // If we are missing more than 2 spots from the mock list, force creation of missing ones.
       if (existingIdSet.size < MOCK_SPOTS.length) {
+        console.log(`[SEEDING] Found ${existingIdSet.size} spots, expected ${MOCK_SPOTS.length}. Synchronizing...`);
         for (const mockSpot of MOCK_SPOTS) {
           if (!existingIdSet.has(mockSpot.id)) {
             await SpotEntity.create(c.env, mockSpot);
@@ -24,9 +28,9 @@ export function userRoutes(app: Hono<{ Bindings: Env }>) {
         }
       }
       let { items, next } = await SpotEntity.list(c.env, cursor ?? null, limit);
-      // Defensive filtering for corrupted or empty storage records
-      let validItems = (items || []).filter((spot): spot is any => 
-        !!spot && typeof spot === 'object' && !!spot.id && !!spot.name && !!spot.sportRatings
+      // Final Defensive Filtering
+      let validItems = (items || []).filter((spot): spot is any =>
+        !!spot && typeof spot === 'object' && !!spot.id && !!spot.name
       );
       if (region && region !== 'All') {
         const targetRegion = region.toLowerCase();
@@ -36,6 +40,23 @@ export function userRoutes(app: Hono<{ Bindings: Env }>) {
     } catch (err) {
       console.error('[API ERROR] Failed to list spots:', err);
       return bad(c, 'Failed to retrieve spots data');
+    }
+  });
+  // SYSTEM RESEED (Admin/Debug)
+  app.post('/api/system/reseed', async (c) => {
+    try {
+      console.log('[SYSTEM] Starting aggressive re-sync of all spots...');
+      const listResult = await SpotEntity.list(c.env, null, 100);
+      const ids = (listResult.items || []).map(s => s.id).filter(Boolean);
+      // We don't drop the whole DO storage to avoid breaking other entities,
+      // but we force update every spot from the mock data.
+      for (const mockSpot of MOCK_SPOTS) {
+        await SpotEntity.create(c.env, mockSpot);
+      }
+      return ok(c, { message: 'Intelligence re-synchronized successfully', count: MOCK_SPOTS.length });
+    } catch (err) {
+      console.error('[API ERROR] Reseed failed:', err);
+      return bad(c, 'System synchronization failure');
     }
   });
   // SINGLE SPOT

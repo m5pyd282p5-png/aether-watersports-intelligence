@@ -23,7 +23,6 @@ export class SpotEntity extends IndexedEntity<Spot> {
     lat: 0,
     lng: 0,
     bestDirection: "",
-    // Practical defaults
     difficulty: 'Intermediate',
     facilities: [],
     crowd: 'Medium',
