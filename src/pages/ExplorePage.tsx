@@ -1,12 +1,13 @@
 import React, { useState, useMemo } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Search, MapPin, Wind, Waves, Compass, X, RotateCcw } from 'lucide-react'
+import { Search, MapPin, Wind, Waves, Compass, X, RotateCcw, Shield, Users } from 'lucide-react'
 import { Input } from '@/components/ui/input'
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
 import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Button } from '@/components/ui/button'
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
 import { Link } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
 import { api } from '@/lib/api-client'
@@ -21,19 +22,23 @@ export function ExplorePage() {
     queryKey: ['spots'],
     queryFn: () => api<{ items: Spot[] }>('/api/spots'),
   })
-  const spots = data?.items ?? []
+  // Fixed lint issue: spots initialization handled inside or separate from dependency
+  const spotsRaw = data?.items;
   const filteredSpots = useMemo(() => {
-    return spots.filter((s): s is Spot => {
+    const spotsList = spotsRaw ?? [];
+    return spotsList.filter((s): s is Spot => {
       if (!s || !s.id || !s.name) return false;
-      const matchesSearch = (s.name?.toLowerCase() ?? '').includes(search.toLowerCase()) ||
-                            (s.location?.toLowerCase() ?? '').includes(search.toLowerCase()) ||
-                            (s.region?.toLowerCase() ?? '').includes(search.toLowerCase());
+      const searchLower = search.toLowerCase();
+      const matchesSearch = (s.name?.toLowerCase() ?? '').includes(searchLower) ||
+                            (s.location?.toLowerCase() ?? '').includes(searchLower) ||
+                            (s.region?.toLowerCase() ?? '').includes(searchLower) ||
+                            (s.difficulty?.toLowerCase() ?? '').includes(searchLower);
       const sportRating = s.sportRatings ? (s.sportRatings[sportFilter as keyof typeof s.sportRatings] ?? 0) : 0;
       const matchesSport = sportFilter === 'all' || sportRating >= 7;
       const matchesRegion = regionFilter === 'All' || s.region === regionFilter;
       return matchesSearch && matchesSport && matchesRegion;
     });
-  }, [spots, search, sportFilter, regionFilter]);
+  }, [spotsRaw, search, sportFilter, regionFilter]);
   const getSportIcon = (sport: string) => {
     switch (sport) {
       case 'windsurf': return <Wind className="h-3 w-3" />;
@@ -60,8 +65,8 @@ export function ExplorePage() {
           <div className="relative w-full md:w-80 group">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground transition-colors group-focus-within:text-primary" />
             <Input
-              placeholder="Search spots, islands..."
-              className="pl-10 pr-10 h-12 bg-secondary/50 border-input rounded-xl focus-visible:ring-primary focus-visible:bg-background"
+              placeholder="Search spots, skill levels..."
+              className="pl-10 pr-10 h-12 bg-secondary/50 border-input rounded-xl focus-visible:ring-primary focus-visible:bg-background transition-all"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
             />
@@ -131,67 +136,92 @@ export function ExplorePage() {
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
-          <AnimatePresence mode="popLayout">
-            {filteredSpots.map((spot) => (
-              <motion.div
-                key={spot.id}
-                layout
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, scale: 0.95 }}
-                transition={{ duration: 0.3 }}
-              >
-                <Link to={`/spot/${spot.id}`}>
-                  <Card className="glass-panel group overflow-hidden border-border hover:border-primary/40 transition-all duration-300 shadow-xl hover:shadow-primary/5 h-full flex flex-col">
-                    <div className="aspect-[4/3] relative overflow-hidden shrink-0">
-                      <img
-                        src={spot.image || 'https://images.unsplash.com/photo-1502680390469-be75c86b636f?auto=format&fit=crop&q=80&w=800'}
-                        alt={spot.name}
-                        className="object-cover w-full h-full group-hover:scale-105 transition-transform duration-700"
-                      />
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
-                      <div className="absolute top-4 left-4">
-                        <Badge className="bg-white/10 backdrop-blur-md border-white/20 text-white text-[10px] uppercase font-bold tracking-widest">
-                          {spot.region}
-                        </Badge>
-                      </div>
-                      <div className="absolute bottom-4 left-4 right-4 flex justify-between items-end">
-                        <div className="space-y-1">
-                          <div className="flex items-center gap-1 text-white/80 text-xs font-medium">
-                            <MapPin className="h-3 w-3" />
-                            {spot.location}
-                          </div>
-                          <h3 className="text-xl font-bold text-white leading-tight font-display">{spot.name}</h3>
+          <TooltipProvider>
+            <AnimatePresence mode="popLayout">
+              {filteredSpots.map((spot) => (
+                <motion.div
+                  key={spot.id}
+                  layout
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, scale: 0.95 }}
+                  transition={{ duration: 0.3 }}
+                >
+                  <Link to={`/spot/${spot.id}`}>
+                    <Card className="glass-panel group overflow-hidden border-border hover:border-primary/40 transition-all duration-300 shadow-xl hover:shadow-primary/5 h-full flex flex-col">
+                      <div className="aspect-[4/3] relative overflow-hidden shrink-0">
+                        <img
+                          src={spot.image || 'https://images.unsplash.com/photo-1502680390469-be75c86b636f?auto=format&fit=crop&q=80&w=800'}
+                          alt={spot.name}
+                          className="object-cover w-full h-full group-hover:scale-105 transition-transform duration-700"
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
+                        <div className="absolute top-4 left-4 flex gap-2">
+                          <Badge className="bg-white/10 backdrop-blur-md border-white/20 text-white text-[10px] uppercase font-bold tracking-widest">
+                            {spot.region}
+                          </Badge>
+                          <Badge className="bg-accent/80 backdrop-blur-md border-none text-white text-[10px] uppercase font-bold tracking-widest">
+                            {spot.difficulty}
+                          </Badge>
                         </div>
-                        <Badge className="bg-accent text-white border-none text-sm font-bold h-10 w-10 flex items-center justify-center p-0 rounded-xl shadow-lg shadow-accent/20">
-                          {spot.generalRating}
-                        </Badge>
+                        <div className="absolute bottom-4 left-4 right-4 flex justify-between items-end">
+                          <div className="space-y-1">
+                            <div className="flex items-center gap-1 text-white/80 text-xs font-medium">
+                              <MapPin className="h-3 w-3" />
+                              {spot.location}
+                            </div>
+                            <h3 className="text-xl font-bold text-white leading-tight font-display">{spot.name}</h3>
+                          </div>
+                          <Badge className="bg-primary text-white border-none text-sm font-bold h-10 w-10 flex items-center justify-center p-0 rounded-xl shadow-lg shadow-primary/20">
+                            {spot.generalRating}
+                          </Badge>
+                        </div>
                       </div>
-                    </div>
-                    <CardContent className="p-6 space-y-4 flex-grow flex flex-col justify-between">
-                      <p className="text-sm text-muted-foreground line-clamp-2 leading-relaxed italic">
-                        "{spot.aiInsight?.summary ?? 'Optimal conditions analysis active.'}"
-                      </p>
-                      <div className="pt-2 flex flex-wrap gap-2">
-                        {spot.sportRatings && Object.entries(spot.sportRatings).map(([sport, rating]) => {
-                          if (rating > 7) {
-                            return (
-                              <div key={sport} className="flex items-center gap-2 px-2.5 py-1.5 rounded-lg bg-secondary/50 border border-border group-hover:border-primary/20 transition-colors">
-                                {getSportIcon(sport)}
-                                <span className="text-[10px] uppercase font-bold text-muted-foreground">{sport}</span>
-                                <span className="text-xs font-bold text-primary">{rating}</span>
-                              </div>
-                            )
-                          }
-                          return null;
-                        })}
-                      </div>
-                    </CardContent>
-                  </Card>
-                </Link>
-              </motion.div>
-            ))}
-          </AnimatePresence>
+                      <CardContent className="p-6 space-y-4 flex-grow flex flex-col justify-between">
+                        <div className="space-y-3">
+                          <p className="text-sm text-muted-foreground line-clamp-2 leading-relaxed italic">
+                            "{spot.aiInsight?.summary ?? 'Optimal conditions analysis active.'}"
+                          </p>
+                          <div className="flex items-center gap-4 text-xs text-muted-foreground">
+                            <div className="flex items-center gap-1">
+                              <Users className="h-3 w-3 text-accent" />
+                              {spot.crowd} Crowd
+                            </div>
+                            <div className="flex items-center gap-1">
+                              <Shield className="h-3 w-3 text-primary" />
+                              {spot.facilities.length} Facilities
+                            </div>
+                          </div>
+                        </div>
+                        <div className="pt-2 flex flex-wrap gap-2">
+                          {spot.sportRatings && Object.entries(spot.sportRatings).map(([sport, rating]) => {
+                            if (rating > 7) {
+                              const gear = spot.bestGear.find(g => g.sport === sport)?.sizeRange;
+                              return (
+                                <Tooltip key={sport}>
+                                  <TooltipTrigger asChild>
+                                    <div className="flex items-center gap-2 px-2.5 py-1.5 rounded-lg bg-secondary/50 border border-border group-hover:border-primary/20 transition-colors cursor-help">
+                                      {getSportIcon(sport)}
+                                      <span className="text-[10px] uppercase font-bold text-muted-foreground">{sport}</span>
+                                      <span className="text-xs font-bold text-primary">{rating}</span>
+                                    </div>
+                                  </TooltipTrigger>
+                                  <TooltipContent>
+                                    <p className="text-xs font-bold">Rec. Gear: {gear || 'Standard'}</p>
+                                  </TooltipContent>
+                                </Tooltip>
+                              )
+                            }
+                            return null;
+                          })}
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </Link>
+                </motion.div>
+              ))}
+            </AnimatePresence>
+          </TooltipProvider>
           {filteredSpots.length === 0 && (
             <motion.div
               initial={{ opacity: 0 }}

@@ -1,6 +1,6 @@
 import React from 'react'
 import { motion } from 'framer-motion'
-import { Sparkles, Wind, ArrowRight, Star, Globe, Zap, Anchor } from 'lucide-react'
+import { Sparkles, Wind, ArrowRight, Star, Globe, Zap, Anchor, Shield } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
@@ -18,7 +18,7 @@ export function HomePage() {
   const spots = data?.items ?? []
   const topSpot = spots.length > 0 ? spots[0] : null
   const activeRegions = new Set(spots.map(s => s.region)).size;
-  const avgWindSpeed = spots.length > 0 
+  const avgWindSpeed = spots.length > 0
     ? (spots.reduce((acc, s) => acc + (s.forecast[0]?.windSpeed ?? 0), 0) / spots.length).toFixed(1)
     : 0;
   return (
@@ -32,20 +32,20 @@ export function HomePage() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, ease: "easeOut" }}
           >
-            <Badge variant="outline" className="px-4 py-1.5 border-primary/30 bg-primary/10 text-primary mb-8 font-semibold tracking-wide">
-              HELLENIC ARCHIPELAGO COVERAGE
+            <Badge variant="outline" className="px-4 py-1.5 border-primary/30 bg-primary/10 text-primary mb-8 font-semibold tracking-wide uppercase">
+              HELLENIC ARCHIPELAGO INTELLIGENCE
             </Badge>
             <h1 className="text-display text-6xl md:text-8xl font-bold leading-[0.9]">
               Archipelago-wide <br/>
               <span className="text-primary italic">Intelligence.</span>
             </h1>
             <p className="text-xl md:text-2xl text-muted-foreground mt-8 leading-relaxed max-w-2xl font-light">
-              Aether translates raw Aegean & Ionian meteorological data into sport-specific ratings for over 16 premium Greek spots.
+              Predictive meteorological analysis for athletes across the Aegean and Ionian seas. Real-time practical insights for 16+ spots.
             </p>
           </motion.div>
         </header>
         {/* Sector Stats Section */}
-        <motion.section 
+        <motion.section
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
@@ -57,7 +57,7 @@ export function HomePage() {
             { label: "Avg. Sector Wind", value: `${avgWindSpeed} kt`, icon: Wind },
             { label: "Intelligence Sync", value: "Real-time", icon: Zap },
           ].map((stat, i) => (
-            <Card key={i} className="bg-white/5 border-white/5 hover:bg-white/10 transition-colors">
+            <Card key={i} className="bg-white/5 border-white/5 hover:bg-white/10 transition-colors shadow-sm">
               <CardContent className="p-6 flex items-center gap-4">
                 <div className="h-12 w-12 rounded-xl bg-primary/10 flex items-center justify-center">
                   <stat.icon className="h-6 w-6 text-primary" />
@@ -91,13 +91,16 @@ export function HomePage() {
                       <h2 className="text-3xl md:text-4xl font-display font-bold leading-tight group-hover:text-primary transition-colors">
                         "{topSpot.aiInsight.summary}"
                       </h2>
-                      <div className="flex flex-wrap items-center justify-center md:justify-start gap-6 text-muted-foreground pt-4">
+                      <div className="flex flex-wrap items-center justify-center md:justify-start gap-4 text-muted-foreground pt-4">
                         <div className="flex items-center gap-2 px-3 py-1 bg-white/5 rounded-full border border-white/5">
                           <Wind className="h-4 w-4 text-primary" />
-                          <span className="font-medium">{topSpot.aiInsight.timeframe}</span>
+                          <span className="font-medium text-xs uppercase tracking-wider">{topSpot.aiInsight.timeframe}</span>
                         </div>
-                        <div className="px-4 py-1.5 rounded-full bg-accent/20 text-accent text-sm font-bold border border-accent/20 uppercase tracking-wider">
+                        <div className="px-4 py-1.5 rounded-full bg-accent/20 text-accent text-xs font-bold border border-accent/20 uppercase tracking-widest">
                           {topSpot.aiInsight.idealSport}
+                        </div>
+                        <div className="px-4 py-1.5 rounded-full bg-secondary text-foreground text-xs font-bold border border-border uppercase tracking-widest">
+                          Rec. Gear: {topSpot.bestGear[0]?.sizeRange || "Standard"}
                         </div>
                       </div>
                     </div>
@@ -116,7 +119,7 @@ export function HomePage() {
         </section>
         {/* Top Spots Grid */}
         <section className="space-y-8 pb-12">
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-between px-1">
             <h3 className="text-3xl font-display font-bold">Trending in the Archipelago</h3>
             <Button variant="ghost" className="hover:bg-primary/10 hover:text-primary transition-colors" asChild>
               <Link to="/explore">Explore all spots <ArrowRight className="ml-2 h-4 w-4" /></Link>
@@ -125,7 +128,7 @@ export function HomePage() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {isLoading ? (
               [1, 2, 3].map((i) => (
-                <Skeleton key={i} className="h-[350px] rounded-2xl" />
+                <Skeleton key={i} className="h-[380px] rounded-2xl" />
               ))
             ) : (
               spots.slice(0, 3).map((spot, idx) => (
@@ -137,31 +140,44 @@ export function HomePage() {
                   transition={{ delay: 0.2 * idx, duration: 0.6 }}
                 >
                   <Link to={`/spot/${spot.id}`}>
-                    <Card className="group overflow-hidden bg-card border-white/5 hover:border-primary/50 transition-all duration-500 hover:shadow-2xl hover:shadow-primary/5">
-                      <div className="aspect-video relative overflow-hidden">
+                    <Card className="group overflow-hidden bg-card border-white/5 hover:border-primary/50 transition-all duration-500 hover:shadow-2xl hover:shadow-primary/5 h-full flex flex-col">
+                      <div className="aspect-video relative overflow-hidden shrink-0">
                         <img
                           src={spot.image}
                           alt={spot.name}
                           className="object-cover w-full h-full group-hover:scale-110 transition-transform duration-1000"
                         />
-                        <div className="absolute top-4 left-4">
+                        <div className="absolute top-4 left-4 flex gap-2">
                           <Badge className="bg-black/40 backdrop-blur-md border-white/10 text-[10px] uppercase font-bold tracking-widest text-white">
                             {spot.region}
                           </Badge>
+                          <Badge className="bg-accent/80 border-none text-[10px] uppercase font-bold tracking-widest text-white">
+                            {spot.difficulty}
+                          </Badge>
                         </div>
                         <div className="absolute top-4 right-4">
-                          <Badge className="bg-black/60 backdrop-blur-xl border-white/20 px-3 py-1 rounded-lg">
+                          <Badge className="bg-black/60 backdrop-blur-xl border-white/20 px-3 py-1 rounded-lg text-white">
                             <Star className="h-3 w-3 text-accent fill-accent mr-1" />
                             {spot.generalRating}
                           </Badge>
                         </div>
                       </div>
-                      <CardContent className="p-6">
-                        <h4 className="text-xl font-bold group-hover:text-primary transition-colors font-display">{spot.name}</h4>
-                        <p className="text-sm text-muted-foreground font-medium mb-4">{spot.location}</p>
-                        <div className="mt-4 flex gap-2">
-                          <Badge variant="secondary" className="text-[10px] uppercase font-black px-2 py-1 tracking-widest bg-white/5">Windsurf {spot.sportRatings.windsurf}</Badge>
-                          <Badge variant="secondary" className="text-[10px] uppercase font-black px-2 py-1 tracking-widest bg-white/5">Wing {spot.sportRatings.wing}</Badge>
+                      <CardContent className="p-6 flex flex-col justify-between flex-grow">
+                        <div>
+                          <h4 className="text-xl font-bold group-hover:text-primary transition-colors font-display mb-1">{spot.name}</h4>
+                          <p className="text-sm text-muted-foreground font-medium mb-4">{spot.location}</p>
+                          <div className="flex gap-4 mb-4">
+                            <div className="flex items-center gap-1 text-[10px] uppercase font-bold text-muted-foreground">
+                              <Shield className="h-3 w-3 text-primary" /> {spot.schoolInfo.length} Schools
+                            </div>
+                            <div className="flex items-center gap-1 text-[10px] uppercase font-bold text-muted-foreground">
+                              <Wind className="h-3 w-3 text-accent" /> {spot.bestGear[0]?.sizeRange || "Standard"}
+                            </div>
+                          </div>
+                        </div>
+                        <div className="mt-auto flex gap-2">
+                          <Badge variant="secondary" className="text-[10px] uppercase font-black px-2 py-1 tracking-widest bg-secondary/50">Windsurf {spot.sportRatings.windsurf}</Badge>
+                          <Badge variant="secondary" className="text-[10px] uppercase font-black px-2 py-1 tracking-widest bg-secondary/50">Wing {spot.sportRatings.wing}</Badge>
                         </div>
                       </CardContent>
                     </Card>

@@ -22,7 +22,15 @@ export class SpotEntity extends IndexedEntity<Spot> {
     },
     lat: 0,
     lng: 0,
-    bestDirection: ""
+    bestDirection: "",
+    // Practical defaults
+    difficulty: 'Intermediate',
+    facilities: [],
+    crowd: 'Medium',
+    tips: [],
+    launchArea: "",
+    bestGear: [],
+    schoolInfo: []
   };
   static seedData = MOCK_SPOTS;
 }

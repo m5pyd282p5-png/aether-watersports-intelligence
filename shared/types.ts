@@ -3,6 +3,8 @@ export interface ApiResponse<T = unknown> {
   data?: T;
   error?: string;
 }
+export type SpotDifficulty = 'Beginner' | 'Intermediate' | 'Advanced' | 'Expert';
+export type CrowdLevel = 'Low' | 'Medium' | 'High' | 'Crowded';
 export interface SportRatings {
   windsurf: number;
   kite: number;
@@ -22,6 +24,16 @@ export interface AiInsight {
   timeframe: string;
   confidence: number;
 }
+export interface RecommendedGear {
+  sport: keyof SportRatings;
+  sizeRange: string;
+}
+export interface SchoolInfo {
+  name: string;
+  distanceKm: number;
+  phone?: string;
+  website?: string;
+}
 export interface Spot {
   id: string;
   name: string;
@@ -36,6 +48,14 @@ export interface Spot {
   lat: number;
   lng: number;
   bestDirection: string;
+  // New Practical Intelligence Fields
+  difficulty: SpotDifficulty;
+  facilities: string[];
+  crowd: CrowdLevel;
+  tips: string[];
+  launchArea: string;
+  bestGear: RecommendedGear[];
+  schoolInfo: SchoolInfo[];
 }
 export interface User {
   id: string;

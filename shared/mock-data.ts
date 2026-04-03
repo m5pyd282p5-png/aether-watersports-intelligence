@@ -26,7 +26,17 @@ export const MOCK_SPOTS: Spot[] = [
     },
     lat: 35.92,
     lng: 27.79,
-    bestDirection: "NE Meltemi"
+    bestDirection: "NE Meltemi",
+    difficulty: 'Expert',
+    facilities: ['Pro Center', 'Rescue', 'Parking', 'Taverna', 'Shower'],
+    crowd: 'Crowded',
+    tips: ['Watch out for the offshore wind on the flat side', 'Rig 4.2-5.0m for the afternoon blast'],
+    launchArea: 'Wide sandy spit between two bays. Plenty of rigging space.',
+    bestGear: [{ sport: 'windsurf', sizeRange: '4.0-5.3m' }, { sport: 'kite', sizeRange: '7-9m' }],
+    schoolInfo: [
+      { name: 'Prasonisi Center', distanceKm: 0.1, phone: '+30 2244 091045' },
+      { name: 'Taboo Surf Center', distanceKm: 0.2 }
+    ]
   },
   {
     id: 'golden-beach-paros',
@@ -46,7 +56,14 @@ export const MOCK_SPOTS: Spot[] = [
     },
     lat: 37.01,
     lng: 25.24,
-    bestDirection: "N Thermal"
+    bestDirection: "N Thermal",
+    difficulty: 'Intermediate',
+    facilities: ['Surf Club', 'Beach Bar', 'Parking', 'Sunbeds'],
+    crowd: 'High',
+    tips: ['Best wind is further out from the shore', 'Morning is great for beginners'],
+    launchArea: 'Sandy beach with easy entry. Side-shore wind simplifies launching.',
+    bestGear: [{ sport: 'wing', sizeRange: '4.5-5.5m' }, { sport: 'windsurf', sizeRange: '5.5-7.0m' }],
+    schoolInfo: [{ name: 'Sunwind Surf Club', distanceKm: 0.1, phone: '+30 2284 041692' }]
   },
   {
     id: 'vassiliki-lefkada',
@@ -66,207 +83,17 @@ export const MOCK_SPOTS: Spot[] = [
     },
     lat: 38.62,
     lng: 20.60,
-    bestDirection: "SW Eric"
-  },
-  {
-    id: 'keros-limnos',
-    name: 'Keros Beach',
-    location: 'Limnos, Greece',
-    region: 'North Aegean',
-    image: 'https://images.unsplash.com/photo-1534120247760-c44c3e4a62f1?auto=format&fit=crop&q=80&w=800',
-    description: 'A vast bay with super shallow turquoise water. A paradise for kitesurfers and wingfoilers.',
-    generalRating: 9.0,
-    sportRatings: { windsurf: 8, kite: 10, wing: 9, surf: 3 },
-    forecast: generateForecast(19),
-    aiInsight: {
-      summary: "Limnos is catching the full force of the Aegean Meltemi today. Endless flat water speed runs.",
-      idealSport: "Kitesurf",
-      timeframe: "10:00 - 19:00",
-      confidence: 0.94
-    },
-    lat: 39.91,
-    lng: 25.36,
-    bestDirection: "NE Meltemi"
-  },
-  {
-    id: 'mikri-vigla-naxos',
-    name: 'Mikri Vigla',
-    location: 'Naxos, Greece',
-    region: 'Cyclades',
-    image: 'https://images.unsplash.com/photo-1506929013022-77735952d7e5?auto=format&fit=crop&q=80&w=800',
-    description: 'The windiest spot in the Cyclades. The wind is accelerated by a funnel effect between Naxos and Paros.',
-    generalRating: 9.4,
-    sportRatings: { windsurf: 9, kite: 10, wing: 9, surf: 2 },
-    forecast: generateForecast(24),
-    aiInsight: {
-      summary: "Extreme venturi effect in the channel. Hold on to your gear, it's going to be wild.",
-      idealSport: "Kitesurf",
-      timeframe: "11:00 - 18:00",
-      confidence: 0.96
-    },
-    lat: 37.02,
-    lng: 25.37,
-    bestDirection: "N Meltemi"
-  },
-  {
-    id: 'loutsa-artemida',
-    name: 'Loutsa (Artemida)',
-    location: 'Attica, Greece',
-    region: 'Attica',
-    image: 'https://images.unsplash.com/photo-1500375591448-4a4c84450bd8?auto=format&fit=crop&q=80&w=800',
-    description: 'The home spot for many Athenians. Shallow water and reliable North winds.',
-    generalRating: 8.2,
-    sportRatings: { windsurf: 9, kite: 6, wing: 8, surf: 2 },
-    forecast: generateForecast(16),
-    aiInsight: {
-      summary: "Close-to-city session alert. The North thermal is steady enough for a large-sail blast.",
-      idealSport: "Windsurf",
-      timeframe: "14:00 - 19:00",
-      confidence: 0.85
-    },
-    lat: 37.97,
-    lng: 24.01,
-    bestDirection: "N Thermal"
-  },
-  {
-    id: 'alimos-athens',
-    name: 'Alimos',
-    location: 'Athens, Greece',
-    region: 'Attica',
-    image: 'https://images.unsplash.com/photo-1516483642777-66986685834e?auto=format&fit=crop&q=80&w=800',
-    description: 'Urban windsurfing at its finest. Convenient city access with surprisingly clean thermal winds.',
-    generalRating: 7.8,
-    sportRatings: { windsurf: 9, kite: 4, wing: 7, surf: 1 },
-    forecast: generateForecast(14),
-    aiInsight: {
-      summary: "Steady urban thermal breeze. Perfect for a post-work slalom blast.",
-      idealSport: "Windsurf",
-      timeframe: "16:00 - 19:30",
-      confidence: 0.82
-    },
-    lat: 37.91,
-    lng: 23.72,
-    bestDirection: "N Thermal"
-  },
-  {
-    id: 'fanari-naxos',
-    name: 'Fanari',
-    location: 'Naxos, Greece',
-    region: 'Cyclades',
-    image: 'https://images.unsplash.com/photo-1536411396596-afed9fa3c1b2?auto=format&fit=crop&q=80&w=800',
-    description: 'Rugged beauty with aggressive wind acceleration. A favorite for technical kite riders.',
-    generalRating: 8.9,
-    sportRatings: { windsurf: 7, kite: 10, wing: 9, surf: 3 },
-    forecast: generateForecast(21),
-    aiInsight: {
-      summary: "Intense Meltemi funneling. Expect strong gusts; prepare for big air.",
-      idealSport: "Kitesurf",
-      timeframe: "11:00 - 17:00",
-      confidence: 0.90
-    },
-    lat: 37.09,
-    lng: 25.42,
-    bestDirection: "N Meltemi"
-  },
-  {
-    id: 'kalafati-mykonos',
-    name: 'Kalafati',
-    location: 'Mykonos, Greece',
-    region: 'Cyclades',
-    image: 'https://images.unsplash.com/photo-1520116468816-95b69f847357?auto=format&fit=crop&q=80&w=800',
-    description: 'The windsurfing heart of Mykonos. Long reaches and consistent Meltemi flow.',
-    generalRating: 9.1,
-    sportRatings: { windsurf: 10, kite: 6, wing: 8, surf: 4 },
-    forecast: generateForecast(23),
-    aiInsight: {
-      summary: "Iconic Mykonos power. The bay is charging with steady 25-knot peaks.",
-      idealSport: "Windsurf",
-      timeframe: "10:30 - 18:30",
-      confidence: 0.94
-    },
-    lat: 37.40,
-    lng: 25.38,
-    bestDirection: "N Meltemi"
-  },
-  {
-    id: 'bloom-rhodos',
-    name: 'Bloom',
-    location: 'Rhodes, Greece',
-    region: 'Dodecanese',
-    image: 'https://images.unsplash.com/photo-1542332213-9b5a5a3fab35?auto=format&fit=crop&q=80&w=800',
-    description: 'A hidden gem offering versatile conditions for all skill levels.',
-    generalRating: 8.5,
-    sportRatings: { windsurf: 8, kite: 8, wing: 9, surf: 5 },
-    forecast: generateForecast(17),
-    aiInsight: {
-      summary: "Balanced thermal flow. Excellent for multidisciplinary training sessions.",
-      idealSport: "Wingfoil",
-      timeframe: "13:00 - 18:00",
-      confidence: 0.86
-    },
-    lat: 36.35,
-    lng: 28.18,
-    bestDirection: "SE Thermal"
-  },
-  {
-    id: 'faneromeni-paros',
-    name: 'Faneromeni',
-    location: 'Paros, Greece',
-    region: 'Cyclades',
-    image: 'https://images.unsplash.com/photo-1589136142566-3cb444e9089e?auto=format&fit=crop&q=80&w=800',
-    description: 'Wild and untouched. For those who seek the authentic Meltemi experience.',
-    generalRating: 8.7,
-    sportRatings: { windsurf: 9, kite: 8, wing: 7, surf: 2 },
-    forecast: generateForecast(22),
-    aiInsight: {
-      summary: "Raw Aegean power. The North-East component is perfectly aligned today.",
-      idealSport: "Windsurf",
-      timeframe: "12:00 - 19:00",
-      confidence: 0.91
-    },
-    lat: 37.05,
-    lng: 25.18,
-    bestDirection: "N Meltemi"
-  },
-  {
-    id: 'agios-georgios-corfu',
-    name: 'Agios Georgios',
-    location: 'Corfu, Greece',
-    region: 'Ionian',
-    image: 'https://images.unsplash.com/photo-1559128192-39c4c3f443d8?auto=format&fit=crop&q=80&w=800',
-    description: 'Vast sandy bay with turquoise water. The Ionian thermal engine at its best.',
-    generalRating: 8.6,
-    sportRatings: { windsurf: 6, kite: 9, wing: 9, surf: 4 },
-    forecast: generateForecast(15),
-    aiInsight: {
-      summary: "Steady Maestro wind kicking in. Silky smooth water for freestyle kite.",
-      idealSport: "Kitesurf",
-      timeframe: "14:30 - 19:00",
-      confidence: 0.89
-    },
-    lat: 39.47,
-    lng: 19.92,
-    bestDirection: "W Offshore"
-  },
-  {
-    id: 'mikri-fterou-ios',
-    name: 'Mikri Fterou',
-    location: 'Ios, Greece',
-    region: 'Cyclades',
-    image: 'https://images.unsplash.com/photo-1544644181-1484b3fdfc62?auto=format&fit=crop&q=80&w=800',
-    description: 'A secluded sanctuary for foilers looking for the perfect glide.',
-    generalRating: 8.4,
-    sportRatings: { windsurf: 5, kite: 7, wing: 10, surf: 2 },
-    forecast: generateForecast(16),
-    aiInsight: {
-      summary: "Exceptional foil efficiency today. The fetch is short, the water is flat.",
-      idealSport: "Wingfoil",
-      timeframe: "13:00 - 17:30",
-      confidence: 0.87
-    },
-    lat: 36.69,
-    lng: 25.30,
-    bestDirection: "N Meltemi"
+    bestDirection: "SW Eric",
+    difficulty: 'Advanced',
+    facilities: ['World Class Schools', 'Rescue Boats', 'Hotels', 'Rigging Lawns'],
+    crowd: 'High',
+    tips: ['Wait for the mountain clouds to form for "Eric"', 'Flat water on the upwind side of the bay'],
+    launchArea: 'Multiple gravel/grass launch spots along the bay front.',
+    bestGear: [{ sport: 'windsurf', sizeRange: '4.7-5.8m' }, { sport: 'wing', sizeRange: '4.0-5.0m' }],
+    schoolInfo: [
+      { name: 'Club Vass', distanceKm: 0.1, phone: '+30 2645 031588' },
+      { name: 'Wildwind', distanceKm: 0.2 }
+    ]
   },
   {
     id: 'karpathos-afiartis',
@@ -286,47 +113,68 @@ export const MOCK_SPOTS: Spot[] = [
     },
     lat: 35.80,
     lng: 27.12,
-    bestDirection: "NE Meltemi"
+    bestDirection: "NE Meltemi",
+    difficulty: 'Expert',
+    facilities: ['Rigging Stations', 'Rescue', 'Parking', 'Studios'],
+    crowd: 'Medium',
+    tips: ['Eat a heavy breakfast, you will need the strength', 'Smallest sails only: 3.4-4.2m'],
+    launchArea: 'Rocky entry in some spots, wear booties. Intense offshore wind.',
+    bestGear: [{ sport: 'windsurf', sizeRange: '3.4-4.5m' }],
+    schoolInfo: [{ name: 'Karpathos Surf Center', distanceKm: 0.1, phone: '+30 2245 091060' }]
   },
   {
-    id: 'agios-nikitas-lefkada',
-    name: 'Agios Nikitas',
-    location: 'Lefkada, Greece',
-    region: 'Ionian',
-    image: 'https://images.unsplash.com/photo-1515238152791-8216bfdf89a7?auto=format&fit=crop&q=80&w=800',
-    description: 'Dramatic cliffs and deep blue water. The West coast experience.',
-    generalRating: 8.3,
-    sportRatings: { windsurf: 4, kite: 8, wing: 9, surf: 6 },
-    forecast: generateForecast(14),
+    id: 'loutsa-artemida',
+    name: 'Loutsa (Artemida)',
+    location: 'Attica, Greece',
+    region: 'Attica',
+    image: 'https://images.unsplash.com/photo-1500375591448-4a4c84450bd8?auto=format&fit=crop&q=80&w=800',
+    description: 'The home spot for many Athenians. Shallow water and reliable North winds.',
+    generalRating: 8.2,
+    sportRatings: { windsurf: 9, kite: 6, wing: 8, surf: 2 },
+    forecast: generateForecast(16),
     aiInsight: {
-      summary: "Western swell meets the afternoon thermal. Potential for small wave winging.",
-      idealSport: "Wingfoil",
-      timeframe: "15:00 - 18:30",
-      confidence: 0.84
+      summary: "Close-to-city session alert. The North thermal is steady enough for a large-sail blast.",
+      idealSport: "Windsurf",
+      timeframe: "14:00 - 19:00",
+      confidence: 0.85
     },
-    lat: 38.72,
-    lng: 20.75,
-    bestDirection: "SW"
+    lat: 37.97,
+    lng: 24.01,
+    bestDirection: "N Thermal",
+    difficulty: 'Beginner',
+    facilities: ['Schools', 'Showers', 'Parking', 'Cafes'],
+    crowd: 'High',
+    tips: ['Great for practicing your first jibes', 'Watch for swimmers in high summer'],
+    launchArea: 'Long sandy beach with shallow water for 50 meters.',
+    bestGear: [{ sport: 'windsurf', sizeRange: '6.0-7.5m' }, { sport: 'wing', sizeRange: '5.5-6.5m' }],
+    schoolInfo: [{ name: 'Athens Watersports', distanceKm: 0.5, phone: '+30 2294 089666' }]
   },
   {
-    id: 'milos-komi',
-    name: 'Komi',
-    location: 'Milos, Greece',
-    region: 'Cyclades',
-    image: 'https://images.unsplash.com/photo-1502680390469-be75c86b636f?auto=format&fit=crop&q=80&w=800',
-    description: 'Unique volcanic landscapes and high-intensity North winds.',
-    generalRating: 8.8,
-    sportRatings: { windsurf: 9, kite: 9, wing: 8, surf: 4 },
-    forecast: generateForecast(20),
+    id: 'keros-limnos',
+    name: 'Keros Beach',
+    location: 'Limnos, Greece',
+    region: 'North Aegean',
+    image: 'https://images.unsplash.com/photo-1534120247760-c44c3e4a62f1?auto=format&fit=crop&q=80&w=800',
+    description: 'A vast bay with super shallow turquoise water. A paradise for kitesurfers and wingfoilers.',
+    generalRating: 9.0,
+    sportRatings: { windsurf: 8, kite: 10, wing: 9, surf: 3 },
+    forecast: generateForecast(19),
     aiInsight: {
-      summary: "Strong North pressure against the caldera. Exceptional vistas and power.",
+      summary: "Limnos is catching the full force of the Aegean Meltemi today. Endless flat water speed runs.",
       idealSport: "Kitesurf",
-      timeframe: "11:00 - 18:00",
-      confidence: 0.92
+      timeframe: "10:00 - 19:00",
+      confidence: 0.94
     },
-    lat: 36.73,
-    lng: 24.52,
-    bestDirection: "N"
+    lat: 39.91,
+    lng: 25.36,
+    bestDirection: "NE Meltemi",
+    difficulty: 'Intermediate',
+    facilities: ['Glamping', 'Surf Schools', 'Eco-center', 'Rescue'],
+    crowd: 'Medium',
+    tips: ['The north end is flatter for kite freestyle', 'Perfect for learning to foil'],
+    launchArea: 'Massive sandy bay. Shallow and safe for hundreds of meters.',
+    bestGear: [{ sport: 'kite', sizeRange: '9-12m' }, { sport: 'wing', sizeRange: '5.0-6.0m' }],
+    schoolInfo: [{ name: 'Surf Club Keros', distanceKm: 0.1, phone: '+30 2254 041162' }]
   }
 ];
 export const MOCK_USERS: User[] = [
