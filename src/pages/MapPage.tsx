@@ -9,6 +9,7 @@ import { Skeleton } from '@/components/ui/skeleton'
 import { Button } from '@/components/ui/button'
 import { Link } from 'react-router-dom'
 import { Compass, Star, ArrowRight, MapPin, Layers } from 'lucide-react'
+import 'leaflet/dist/leaflet.css'
 import { ResponsiveContainer, AreaChart, Area } from 'recharts'
 import type { Spot } from '@shared/types'
 // Fix Leaflet marker icons which break in bundlers
