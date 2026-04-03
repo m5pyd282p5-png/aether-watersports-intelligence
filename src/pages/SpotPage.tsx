@@ -9,7 +9,7 @@ import {
   Activity,
   MapPin,
   Waves,
-  Loader2
+  RefreshCw
 } from 'lucide-react'
 import {
   ResponsiveContainer,
@@ -20,33 +20,50 @@ import {
   Tooltip,
   CartesianGrid
 } from 'recharts'
-import { useQuery } from '@tanstack/react-query'
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { api } from '@/lib/api-client'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Progress } from '@/components/ui/progress'
 import { Badge } from '@/components/ui/badge'
+import { Skeleton } from '@/components/ui/skeleton'
+import { cn } from '@/lib/utils'
 import type { Spot } from '@shared/types'
 export function SpotPage() {
   const { id } = useParams<{ id: string }>()
+  const queryClient = useQueryClient()
   const { data: spot, isLoading, error } = useQuery({
     queryKey: ['spot', id],
     queryFn: () => api<Spot>(`/api/spots/${id}`),
     enabled: !!id,
   })
+  const { mutate: refreshIntelligence, isPending: isAnalyzing } = useMutation({
+    mutationFn: () => api<Spot>(`/api/spots/${id}/analyze`, { method: 'POST' }),
+    onSuccess: (newData) => {
+      queryClient.setQueryData(['spot', id], newData)
+    }
+  })
   if (isLoading) {
     return (
-      <div className="min-h-[60vh] flex items-center justify-center">
-        <div className="text-center space-y-4">
-          <Loader2 className="h-10 w-10 animate-spin text-primary mx-auto" />
-          <p className="text-muted-foreground font-display text-xl">Consulting the oracles...</p>
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12 space-y-8">
+        <Skeleton className="h-10 w-32" />
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          <div className="lg:col-span-2 space-y-6">
+            <Skeleton className="aspect-[21/9] w-full rounded-3xl" />
+            <Skeleton className="h-48 w-full rounded-xl" />
+            <Skeleton className="h-[300px] w-full rounded-xl" />
+          </div>
+          <div className="space-y-6">
+            <Skeleton className="h-64 w-full rounded-xl" />
+            <Skeleton className="h-48 w-full rounded-xl" />
+          </div>
         </div>
       </div>
     )
   }
   if (error || !spot) {
     return (
-      <div className="py-20 text-center space-y-6">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 text-center space-y-6">
         <h2 className="text-3xl font-display font-bold">Spot Lost at Sea</h2>
         <p className="text-muted-foreground">We couldn't find the intelligence for this location.</p>
         <Button asChild>
@@ -56,7 +73,7 @@ export function SpotPage() {
     )
   }
   return (
-    <div className="space-y-10 pb-20">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12 space-y-10">
       <nav className="flex items-center justify-between">
         <Button variant="ghost" asChild className="-ml-4">
           <Link to="/explore">
@@ -70,7 +87,11 @@ export function SpotPage() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         <div className="lg:col-span-2 space-y-8">
           <header className="space-y-4">
-            <div className="aspect-[21/9] rounded-3xl overflow-hidden relative shadow-2xl">
+            <motion.div 
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="aspect-[21/9] rounded-3xl overflow-hidden relative shadow-2xl"
+            >
               <img src={spot.image} alt={spot.name} className="w-full h-full object-cover" />
               <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent flex items-end p-8 md:p-12">
                 <div className="space-y-2">
@@ -81,20 +102,35 @@ export function SpotPage() {
                   <h1 className="text-5xl md:text-7xl font-display font-bold text-white leading-none">{spot.name}</h1>
                 </div>
               </div>
-            </div>
+            </motion.div>
           </header>
-          <Card className="glass-panel border-primary/20">
-            <CardHeader className="flex flex-row items-center gap-3">
-              <div className="h-10 w-10 rounded-xl bg-primary/20 flex items-center justify-center">
-                <Sparkles className="h-6 w-6 text-primary" />
+          <Card className={cn(
+            "glass-panel border-primary/20 transition-all duration-500",
+            isAnalyzing && "animate-pulse opacity-70"
+          )}>
+            <CardHeader className="flex flex-row items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="h-10 w-10 rounded-xl bg-primary/20 flex items-center justify-center">
+                  <Sparkles className="h-6 w-6 text-primary" />
+                </div>
+                <div>
+                  <CardTitle className="text-xl font-display font-bold">AI Intelligence Analysis</CardTitle>
+                  <p className="text-sm text-muted-foreground">Synthesized from 4 meteorological models</p>
+                </div>
               </div>
-              <div>
-                <CardTitle className="text-xl font-display font-bold">AI Intelligence Analysis</CardTitle>
-                <p className="text-sm text-muted-foreground">Synthesized from 4 meteorological models</p>
-              </div>
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={() => refreshIntelligence()}
+                disabled={isAnalyzing}
+                className="rounded-full gap-2"
+              >
+                <RefreshCw className={cn("h-4 w-4", isAnalyzing && "animate-spin")} />
+                {isAnalyzing ? "Thinking..." : "Refresh"}
+              </Button>
             </CardHeader>
             <CardContent className="space-y-6">
-              <p className="text-2xl font-medium leading-relaxed italic text-foreground">
+              <p className="text-2xl font-medium leading-relaxed italic text-foreground font-display">
                 "{spot.aiInsight.summary}"
               </p>
               <div className="flex flex-wrap gap-4 pt-2">
@@ -117,7 +153,7 @@ export function SpotPage() {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="h-[300px] w-full">
+              <div className="h-[350px] w-full">
                 <ResponsiveContainer width="100%" height="100%">
                   <AreaChart data={spot.forecast}>
                     <defs>
@@ -135,9 +171,10 @@ export function SpotPage() {
                     <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#888' }} unit="kt" />
                     <Tooltip
                       contentStyle={{ backgroundColor: '#0f172a', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '12px' }}
+                      itemStyle={{ fontWeight: 'bold' }}
                     />
-                    <Area type="monotone" dataKey="gust" stroke="#f97316" fillOpacity={1} fill="url(#colorGust)" strokeWidth={2} name="Gusts" />
-                    <Area type="monotone" dataKey="windSpeed" stroke="#0ea5e9" fillOpacity={1} fill="url(#colorWind)" strokeWidth={2} name="Wind Speed" />
+                    <Area type="monotone" dataKey="gust" stroke="#f97316" fillOpacity={1} fill="url(#colorGust)" strokeWidth={3} name="Gusts" />
+                    <Area type="monotone" dataKey="windSpeed" stroke="#0ea5e9" fillOpacity={1} fill="url(#colorWind)" strokeWidth={3} name="Wind Speed" />
                   </AreaChart>
                 </ResponsiveContainer>
               </div>
